@@ -1,0 +1,5895 @@
+swagger: '2.0'
+info:
+  title: EasyCLA v2 API
+  version: '2.0'
+  x-logo:
+    url: https://www.linuxfoundation.org/wp-content/uploads/2017/06/LF_logo_NEW_H_W.png
+    backgroundColor: '#FFFFFF'
+    altText: The Linux Foundation - EasyCLA API
+basePath: /v4
+securityDefinitions:
+  lf-auth:
+    type: apiKey
+    name: X-ACL
+    in: header
+    description: Requires X-ACL headers and bearer token
+security:
+- lf-auth: []
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /ops/version:
+    get:
+      summary: API Version Information
+      description: Returns the API version of the product
+      security: []
+      operationId: getVersion
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/version'
+      tags:
+      - version
+  /ops/health:
+    get:
+      summary: API Health Check
+      description: Returns the API health status
+      security: []
+      operationId: healthCheck
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/health'
+        '503':
+          description: Service unavailable
+          schema:
+            $ref: '#/definitions/health'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - health
+  /api-docs:
+    get:
+      security: []
+      summary: API documentation
+      description: Endpoint to render the API documentation
+      operationId: getDoc
+      produces:
+      - text/html
+      responses:
+        '200':
+          description: Success
+      tags:
+      - docs
+  /swagger.json:
+    get:
+      security: []
+      summary: Swagger API as JSON
+      description: Returns the Swagger specification as a JSON document
+      operationId: getSwagger
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+      tags:
+      - docs
+  /metrics/cla-manager-distribution:
+    get:
+      summary: Get CLA manager distribution for EasyCLA
+      description: Returns CLA manager distribution
+      operationId: getClaManagerDistribution
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-manager-distribution'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/total-count:
+    get:
+      summary: Get total count metrics
+      description: Returns total count metrics
+      operationId: getTotalCount
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/total-count-metrics'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/company/{companyID}:
+    get:
+      summary: Get metrics of company
+      description: Returns company metrics
+      operationId: getCompanyMetric
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: companyID
+        description: the company ID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-metric'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/top-companies:
+    get:
+      summary: company metrics of top companies
+      description: Returns list company metrics of top companies
+      operationId: getTopCompanies
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/top-companies'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/top-projects:
+    get:
+      summary: project metrics of top projects
+      description: Returns list project metrics of top projects
+      operationId: getTopProjects
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/top-projects'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/project/{projectID}:
+    get:
+      summary: Get metrics of project
+      description: Returns project metrics
+      operationId: getProjectMetric
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectID
+        description: the project ID
+        in: path
+        type: string
+        required: true
+      - name: idType
+        description: ID type
+        in: query
+        type: string
+        enum:
+        - salesforce
+        - internal
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/sf-project-metric'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - metrics
+  /metrics/project:
+    get:
+      summary: list metrics of project
+      description: Returns list of project metrics
+      operationId: listProjectMetrics
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/pageSize'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/list-project-metric'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+      tags:
+      - metrics
+  /metrics/company/{companySFID}/project/{projectSFID}:
+    get:
+      summary: list project metrics of company
+      description: Returns list of project metrics for company
+      operationId: listCompanyProjectMetrics
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-project-metrics'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - metrics
+  /cla-group:
+    post:
+      summary: Create an EasyCLA CLA Group
+      description: Creates a new CLA Group within the EasyCLA system.
+      operationId: createClaGroup
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: claGroupInput
+        in: body
+        schema:
+          $ref: '#/definitions/create-cla-group-input'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group-summary'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+        '422':
+          $ref: '#/responses/unprocessable-entity'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /cla-group/{claGroupID}:
+    put:
+      summary: Update an EasyCLA CLA Group
+      description: Update CLA Group within the EasyCLA system.
+      operationId: updateClaGroup
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/update-cla-group-input'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group-summary'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+    delete:
+      summary: Delete an EasyCLA CLA Group
+      description: Delete CLA Group within the EasyCLA system.
+      operationId: deleteClaGroup
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /cla-group/{claGroupID}/enroll-projects:
+    put:
+      summary: Enroll projects in an EasyCLA CLA Group
+      description: Enroll projects in  CLA Group
+      operationId: enrollProjects
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - name: projectSFIDList
+        in: body
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /cla-group/{claGroupID}/unenroll-projects:
+    put:
+      summary: Unenroll projects in an EasyCLA CLA Group
+      description: Unenroll projects in  CLA Group
+      operationId: unenrollProjects
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - name: projectSFIDList
+        in: body
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /foundation/{projectSFID}/cla-groups:
+    get:
+      summary: List CLA Groups associated with a foundation or project
+      description: Return list of CLA Groups associated with a group of projects (formerly
+        a foundation) or project
+      operationId: listClaGroupsUnderFoundation
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group-list-summary'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /foundation-mapping:
+    get:
+      summary: return cla groups under all foundation
+      description: Return list of all cla groups under foundation
+      operationId: listFoundationClaGroups
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/foundationSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/foundation-mapping-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - foundation
+  /cla-group/validate:
+    post:
+      summary: Validates the CLA Group
+      description: Validates the CLA Group provided input parameters
+      operationId: validateClaGroup
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: validationInputRequest
+        in: body
+        schema:
+          $ref: '#/definitions/cla-group-validation-request'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group-validation-response'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-group
+  /project:
+    put:
+      summary: Update Project by ID
+      description: Endpoint to update the project details
+      operationId: updateProject
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/cla-group'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+    get:
+      summary: Get Projects
+      description: Endpoint to fetch the project list
+      operationId: getProjects
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/searchTerm'
+      - $ref: '#/parameters/searchField'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/fullMatch'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-groups'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+  /project/{projectSfdcId}:
+    parameters:
+    - name: projectSfdcId
+      in: path
+      type: string
+      required: true
+    get:
+      summary: Get Project by ID
+      description: Endpoint to fetch the project by ID
+      operationId: getProjectById
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+    delete:
+      summary: Delete Project by ID
+      description: Endpoint to delete the project by ID
+      operationId: deleteProjectById
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - project
+  /project/enabled/{foundationSFID}:
+    get:
+      summary: Get CLA enabled projects
+      description: Returns a list of CLA enabled projects for a given foundation
+      operationId: getCLAProjectsByID
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-foundationSFID'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/pageSize'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/enabled-cla-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+  /project/external/{externalID}:
+    get:
+      summary: Get CLA Groups By SFDC ID
+      description: Returns a list of CLA groups associated with the specified SFID
+        ID
+      operationId: getProjectsByExternalID
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: externalID
+        in: path
+        type: string
+        required: true
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/pageSize'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-groups'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+  /project/name/{projectName}:
+    get:
+      summary: Get Project By Name
+      description: Returns the project object when provided the project name - exact
+        match
+      operationId: getProjectByName
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectName
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-group'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - project
+  /events/recent:
+    get:
+      summary: List recent events - requires Admin-level access
+      description: Returns list of recent events
+      operationId: getRecentEvents
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/pageSize'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/event-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /events/foundation/{foundationSFID}/csv:
+    get:
+      summary: Download all the events for the foundation as a CSV document
+      description: Download all the events for the foundation as a CSV document
+      operationId: getFoundationEventsAsCSV
+      parameters:
+      - $ref: '#/parameters/path-foundationSFID'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      produces:
+      - text/csv
+      responses:
+        '200':
+          description: The events for the SFDC foundation as a CSV document
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /events/foundation/{foundationSFID}:
+    get:
+      summary: get the events for the foundation
+      description: get all the events for the foundation
+      operationId: getFoundationEvents
+      parameters:
+      - $ref: '#/parameters/path-foundationSFID'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/searchTerm'
+      - $ref: '#/parameters/returnAllEvents'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/event-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /events/project/{projectSFID}:
+    get:
+      summary: get the events for the project
+      description: get all the events for the project
+      operationId: getProjectEvents
+      parameters:
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/searchTerm'
+      - $ref: '#/parameters/returnAllEvents'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/event-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /events/project/{projectSFID}/csv:
+    get:
+      summary: Download all the events for the project as a CSV document
+      description: Download all the events for the project as a CSV document
+      operationId: getProjectEventsAsCSV
+      parameters:
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      produces:
+      - text/csv
+      responses:
+        '200':
+          description: The events for the SFDC project as a CSV document
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /company/{companySFID}/project/{projectSFID}/events:
+    get:
+      summary: return recent events of company and project
+      description: Returns list of events of company and project
+      operationId: getCompanyProjectEvents
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/returnAllEvents'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/event-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - events
+  /template:
+    get:
+      summary: Get Available Templates
+      description: Endpoint to return the list of available templates
+      operationId: getTemplates
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/template'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - template
+  /clagroup/{claGroupID}/template:
+    post:
+      summary: Create contract template for CLA Group
+      description: Endpoint to create the template for the CLA Group
+      operationId: createCLAGroupTemplate
+      parameters:
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/create-cla-group-template'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/template-pdfs'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - template
+  /template/preview:
+    post:
+      summary: Create contract template for CLA Group
+      description: Endpoint to create the template preview for the CLA Group
+      operationId: templatePreview
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - in: query
+        type: string
+        name: template_for
+        required: true
+        enum:
+        - icla
+        - ccla
+      - in: body
+        name: templatePreviewInput
+        schema:
+          $ref: '#/definitions/create-cla-group-template'
+        required: true
+      produces:
+      - application/pdf
+      responses:
+        '200':
+          description: A PDF file
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - template
+  /template/{claGroupID}/preview:
+    get:
+      summary: Preview Template PDF
+      description: Get Template PDF for given CLA Group identifier with specified
+        CLA type
+      operationId: getCLATemplatePreview
+      security: []
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/templateCLAType'
+      - in: query
+        type: boolean
+        name: watermark
+        required: false
+        default: false
+      produces:
+      - application/pdf
+      responses:
+        '200':
+          description: A PDF File
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - template
+  /project/{projectSFID}/github/organizations:
+    post:
+      summary: API to add new GitHub Oranization in the project
+      description: Endpoint to create the template preview for the CLA Group
+      operationId: addProjectGithubOrganization
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/create-github-organization'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/github-organization'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-organizations
+    get:
+      summary: API to fetch the GitHub oranizations of the project
+      description: Endpoint to return the list of GitHub organization for the project
+      operationId: getProjectGithubOrganizations
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/project-github-organizations'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-organizations
+  /project/{projectSFID}/github/organizations/{orgName}/config:
+    put:
+      summary: Update GitHub Organization Configuration
+      description: Endpoint to adjust the GitHub Organization Configuration, such
+        as toggling the auto-enable flag
+      operationId: updateProjectGithubOrganizationConfig
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - name: orgName
+        in: path
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/update-github-organization'
+        required: true
+      responses:
+        '200':
+          description: Resource Updated
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - github-organizations
+  /project/{projectSFID}/github/organizations/{orgName}:
+    delete:
+      summary: API to delete GitHub oranization in the project
+      description: Endpoint to delete the GitHub organization for the project
+      operationId: deleteProjectGithubOrganization
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - name: orgName
+        in: path
+        type: string
+        required: true
+      responses:
+        '204':
+          description: Updated Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - github-organizations
+  /project/{projectSFID}/github/repositories:
+    post:
+      summary: API to add the GitHub repository
+      description: Endpoint to add a GitHub repository for the project
+      operationId: addProjectGithubRepository
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - in: body
+        name: github-repository-input
+        schema:
+          $ref: '#/definitions/github-repository-input'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/github-repository'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-repositories
+    get:
+      summary: API to fetch the gitHub repositories of the project
+      description: Endpoint to fetch the list of GitHub repositories for the project
+      operationId: getProjectGithubRepositories
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/list-github-repositories'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-repositories
+  /project/{projectSFID}/github/repositories/{repositoryID}:
+    delete:
+      summary: API to remove the GitHub repository from the project
+      description: Endpoint to remove a GitHub repository from a project
+      operationId: deleteProjectGithubRepository
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - name: repositoryID
+        in: path
+        type: string
+        required: true
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - github-repositories
+  /project/{projectSFID}/github/repositories/{repositoryID}/branch-protection:
+    post:
+      summary: API to manage github branch protection for given repository
+      description: Endpoint to set branch protection options for the given branch,
+        defaults to repository's default branch
+      operationId: updateProjectGithubRepositoryBranchProtection
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - name: repositoryID
+        in: path
+        type: string
+        required: true
+      - in: body
+        name: github-repository-branch-protection-input
+        schema:
+          $ref: '#/definitions/github-repository-branch-protection-input'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/github-repository-branch-protection'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-repositories
+    get:
+      summary: API to manage github branch protection for given repository
+      description: Endpoint to get branch protection options for the given branch,
+        defaults to repository's default branch
+      operationId: getProjectGithubRepositoryBranchProtection
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: projectSFID
+        in: path
+        type: string
+        required: true
+      - name: repositoryID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/github-repository-branch-protection'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - github-repositories
+  /cla-group/{claGroupID}/icla/signatures:
+    get:
+      summary: List individual signatures for CLA Group
+      description: Returns a list of individual signatures for a CLA Group
+      operationId: listClaGroupIclaSignature
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/searchTerm'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/icla-signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /cla-group/{claGroupID}/corporate-contributors:
+    get:
+      summary: List corporate contributors for cla group
+      description: Returns a list of corporate contributor for the CLA Group
+      operationId: listClaGroupCorporateContributors
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/companySFID'
+      - $ref: '#/parameters/searchTerm'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/corporate-contributor-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/id/{signatureID}:
+    get:
+      summary: Get the signature by ID
+      description: Returns the signature when provided the signature ID
+      operationId: getSignature
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: signatureID
+        description: the signature ID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signature'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/{signatureID}/signed-document:
+    get:
+      summary: Get signed document for the signature
+      description: Returns the signature signed document when provided the signature
+        ID
+      operationId: getSignatureSignedDocument
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: signatureID
+        description: the signature ID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signed_document'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}:
+    get:
+      summary: Get project signatures
+      description: Returns a list of project signature models when provided the project
+        ID
+      operationId: getProjectSignatures
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/searchTerm'
+      - $ref: '#/parameters/searchField'
+      - $ref: '#/parameters/fullMatch'
+      - $ref: '#/parameters/signatureType'
+      - $ref: '#/parameters/claType'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/icla/pdfs:
+    get:
+      summary: Downloads all ICLAs for this project
+      description: Downloads the ICLAs for this project
+      operationId: downloadProjectSignatureICLAs
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: The CLA Group ICLAs as a zip
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/url-object'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/icla/csv:
+    get:
+      summary: Downloads all ICLA information as a CSV document for this project
+      description: Downloads the ICLA information as a CSV document for this project
+      operationId: downloadProjectSignatureICLAAsCSV
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      produces:
+      - text/json
+      - text/csv
+      responses:
+        '200':
+          description: The CLA Group ICLAs as a CSV file
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/icla/{signatureID}/pdf:
+    get:
+      summary: Downloads the user's ICLA for this project
+      description: Downloads the user's ICLA for this project
+      operationId: downloadProjectSignatureICLA
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-signatureID'
+      produces:
+      - application/pdf
+      responses:
+        '200':
+          description: The user's ICLA as a PDF document
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/ccla/pdfs:
+    get:
+      summary: Downloads all corporate CLAs for this project
+      description: Downloads the corporate CLAs for this project
+      operationId: downloadProjectSignatureCCLAs
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: The CLA Group CCLAs as a zip
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/url-object'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/ccla/csv:
+    get:
+      summary: Downloads all coporate CLA information as a CSV document for this project
+      description: Downloads the corporate CLA information as a CSV document for this
+        project
+      operationId: downloadProjectSignatureCCLAAsCSV
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      produces:
+      - text/csv
+      - application/json
+      responses:
+        '200':
+          description: The CLA Group corporate CLAs as a CSV file
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/ccla/{signatureID}/pdf:
+    get:
+      summary: Downloads the corporate CLA for this project
+      description: Downloads the corporate CLA for this project
+      operationId: downloadProjectSignatureCorporateCLA
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-signatureID'
+      produces:
+      - application/pdf
+      responses:
+        '200':
+          description: The corporate CLA as a PDF document
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{claGroupID}/company/{companySFID}/employee/csv:
+    get:
+      summary: Downloads all employee CLA information as a CSV document for this project
+      description: Downloads the employee CLA information as a CSV document for this
+        project
+      operationId: downloadProjectSignatureEmployeeAsCSV
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-companySFID'
+      produces:
+      - text/json
+      - text/csv
+      responses:
+        '200':
+          description: The CLA Group employee CLA's as a CSV file
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{projectSFID}/company/{companySFID}:
+    get:
+      summary: Get project company ccla signatures
+      description: Returns a list of ccla signature models when provided the project
+        ID and company ID
+      operationId: getProjectCompanySignatures
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/company/{companySFID}:
+    get:
+      summary: Get company signatures
+      description: Returns a list of company signatures when provided the company
+        ID
+      operationId: getCompanySignatures
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/signatureType'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/companyName'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/user/{userID}:
+    get:
+      summary: Get user signatures
+      description: Returns a list of user signatures when provided the user ID
+      operationId: getUserSignatures
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: userID
+        description: the user ID
+        in: path
+        type: string
+        required: true
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      - $ref: '#/parameters/userName'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{projectSFID}/company/{companySFID}/employee:
+    get:
+      summary: Get project company signatures for the employees
+      description: Returns a list of employee project signature models when provided
+        the project ID and company ID
+      operationId: getProjectCompanyEmployeeSignatures
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/pageSize'
+      - $ref: '#/parameters/nextKey'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signatures'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /signatures/project/{projectSFID}/company/{companySFID}/clagroup/{claGroupID}/approval-list:
+    put:
+      summary: Updates the Project / Organization/Company Approval list
+      description: API to update the project and organization/company approval list.
+      operationId: updateApprovalList
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - name: claGroupID
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/approval-list'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/signature'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /notify-cla-managers:
+    post:
+      summary: Send Notification to CLA Managaers
+      description: Send Notification to selected list of CLA Managers
+      security: []
+      operationId: notifyCLAManagers
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/notify-cla-manager-list'
+        required: true
+      responses:
+        '204':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '404':
+          $ref: '#/responses/not-found'
+        '400':
+          $ref: '#/responses/invalid-request'
+      tags:
+      - cla-manager
+  /user/{userID}/invite-company-admin:
+    post:
+      summary: Invite Manager
+      description: Invite Company Admin based on user request to sign CLA
+      security: []
+      operationId: inviteCompanyAdmin
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-userID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: CLA Manager Designee
+          properties:
+            contactAdmin:
+              description: flag checking whether to contact company admin
+              type: boolean
+            companyID:
+              description: EasyCLA companyID of contributor inviting CLA Manager
+              type: string
+            claGroupID:
+              description: claGroupID to be signed
+              type: string
+            userEmail:
+              description: Proposed CLA Manager email
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+            name:
+              type: string
+              description: Proposed CLA Manager name
+              example: Harold Wanyama
+              pattern: ^[a-zA-Z0-9]+(([',. -][0-9a-zA-Z ])?[0-9a-zA-Z]*)*$
+              minLength: 1
+              maxLength: 60
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-manager-designees'
+        '202':
+          $ref: '#/responses/accepted-request'
+        '204':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - cla-manager
+  /company/{companySFID}/project/{projectSFID}/cla-manager/requests:
+    post:
+      summary: Adds a CLA Manager Designee to the specified Company and Project
+      description: User proposes a CLA Manager making the proposed user CLA Manager
+        Designee
+      operationId: createCLAManagerRequest
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: CLA Manager Designee User
+          description: User object used for CLA Manager requests
+          required:
+          - fullName
+          properties:
+            fullName:
+              type: string
+              pattern: ^[a-zA-Z0-9_]+( [a-zA-Z0-9_]+)*$
+              minLength: 2
+              maxLength: 60
+            userEmail:
+              description: CLA Manager Designee email
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+            contactAdmin:
+              type: boolean
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-manager-designee'
+        '202':
+          $ref: '#/responses/accepted-request'
+        '204':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - cla-manager
+  /company/{companySFID}/project/{projectSFID}/cla-manager:
+    post:
+      summary: Adds a new CLA Manager to the specified Company and Project
+      description: Allows an existing CLA Manager to add another CLA Manager to the
+        specified Company and Project.
+      operationId: createCLAManager
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/cla-manager-user'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-cla-manager'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - cla-manager
+  /company/{companySFID}/contributorAssociation:
+    post:
+      summary: Associates a contributor with a company
+      description: Associates a contributor with a company
+      security: []
+      operationId: contributorAssociation
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-companySFID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: Contributor
+          properties:
+            userEmail:
+              description: LfEmail for contributor getting associated
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/contributor'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - company
+  /company/{companySFID}/claGroup/{claGroupID}/contributorAssociation:
+    post:
+      summary: Associates a contributor with a company and Project
+      description: Associates a contributor with a company and Project
+      security: []
+      operationId: contributorRoleScopAssociation
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-claGroupID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: Contributor
+          properties:
+            userEmail:
+              description: LfEmail for contributor getting associated
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/contributors'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - company
+  /company/{companySFID}/company-owner:
+    post:
+      operationId: assignCompanyOwner
+      security: []
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-companySFID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: CompanyOwner
+          properties:
+            userEmail:
+              description: LfEmail for company owner getting associated
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-owner'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - company
+  /company/{companySFID}/project/{projectSFID}/cla-manager/{userLFID}:
+    delete:
+      summary: Removes the CLA Manager from ACL for specified Company and Project
+      description: Allows an existing CLA Manager to remove another CLA Manager from
+        the specified Company and Project.
+      operationId: deleteCLAManager
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-userLFID'
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - cla-manager
+  /company/{companySFID}/claGroup/{claGroupID}/cla-manager-designee:
+    post:
+      summary: Assigns CLA Manager designee
+      description: Assigns CLA Manager designee to a given user
+      operationId: createCLAManagerDesigneeByGroup
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-companySFID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: CLA Manager Designee
+          description: User object used for CLA Manager designee
+          properties:
+            userEmail:
+              description: CLA Manager designee email address
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-manager-designees'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - cla-manager
+  /company/{companySFID}/project/{projectSFID}/cla-manager-designee:
+    post:
+      summary: Assigns CLA Manager designee
+      description: Assigns CLA Manager designee to a given user
+      operationId: createCLAManagerDesignee
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-companySFID'
+      - name: body
+        in: body
+        schema:
+          type: object
+          x-nullable: false
+          title: CLA Manager designee
+          description: User object used for CLA Manager designee
+          properties:
+            userEmail:
+              description: CLA Manager designee email address
+              type: string
+              example: user@linuxfoundation.org
+              format: email
+              pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/cla-manager-designee'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - cla-manager
+  /signatures/{signatureID}/gh-org-whitelist:
+    get:
+      summary: Signature Update
+      description: Updates the specified signature GitHub Organization approval list
+      operationId: getGitHubOrgWhitelist
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: signatureID
+        in: path
+        type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/github-org'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+    delete:
+      summary: Signature Delete
+      description: Deletes the specified signature GitHub organization approval list
+      operationId: deleteGitHubOrgWhitelist
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: signatureID
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/gh-org-whitelist'
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/github-org'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+    post:
+      summary: Signature Update
+      description: Updates the specified signature GitHub organization approval list
+      operationId: addGitHubOrgWhitelist
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: signatureID
+        in: path
+        type: string
+        required: true
+      - name: body
+        in: body
+        schema:
+          $ref: '#/definitions/gh-org-whitelist'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/github-org'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - signatures
+  /gerrit/repos:
+    get:
+      summary: Get Gerrit Repositories
+      description: Returns a list of repositories under the specified gerrit instance
+      operationId: getGerritRepos
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/gerritHost'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/gerrit-repo-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - gerrits
+  /cla-group/{claGroupID}/project/{projectSFID}/gerrits/{gerritID}:
+    delete:
+      summary: Delete the gerrit
+      description: Delete the gerrit instance for the project
+      operationId: deleteGerrit
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/path-claGroupID'
+      - name: gerritID
+        in: path
+        type: string
+        required: true
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '404':
+          $ref: '#/responses/not-found'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - gerrits
+  /cla-group/{claGroupID}/project/{projectSFID}/gerrits:
+    get:
+      summary: Get the gerrits for project and cla-group
+      description: Get the gerrit instance list for the project and cla-group
+      operationId: ListGerrits
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/gerrit-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - gerrits
+    post:
+      summary: Add the gerrit
+      description: Adds the gerrit instance for the project
+      operationId: addGerrit
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-claGroupID'
+      - $ref: '#/parameters/path-projectSFID'
+      - in: body
+        name: add-gerrit-input
+        schema:
+          $ref: '#/definitions/add-gerrit-input'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/gerrit'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '409':
+          $ref: '#/responses/conflict'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - gerrits
+  /company/name/{companyName}:
+    get:
+      summary: gets the company by name
+      description: Returns the matching company by name
+      operationId: getCompanyByName
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companyName'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - company
+  /company/id/{companyID}:
+    delete:
+      summary: deletes the company by ID
+      description: Deletes the company by ID
+      operationId: deleteCompanyByID
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companyID'
+      produces:
+      - application/json
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - company
+  /company/sfid/{companySFID}:
+    delete:
+      summary: deletes the company by the SFID
+      description: Deletes the company by the SFID
+      operationId: deleteCompanyBySFID
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      produces:
+      - application/json
+      responses:
+        '204':
+          description: Resource Deleted
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+      - company
+  /company/{companySFID}/project/{projectSFID}/cla-managers:
+    get:
+      summary: get CLA manager of company for particular project/foundation
+      description: Returns list CLA managers of the company for project/foundation
+      operationId: getCompanyProjectClaManagers
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-cla-managers'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - company
+  /company/{companyID}/cla-group/{claGroupID}/cla-managers:
+    get:
+      summary: Get list of CLA managers based on the CLA Group and v1 Company ID
+      description: Returns a list of current CLA managers based on the CLA Group ID
+        and the v1 Company ID
+      operationId: getCompanyCLAGroupManagers
+      security: []
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-companyID'
+      - $ref: '#/parameters/path-claGroupID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-cla-managers'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - company
+  /company/{companySFID}/project/{projectSFID}/active-cla-list:
+    get:
+      summary: get active CLA list of company for particular project/foundation
+      description: Returns list active CLA of the company under particular project/foundation
+      operationId: getCompanyProjectActiveCla
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/active-cla-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - company
+  /company/{companySFID}/project/{projectSFID}/contributors:
+    get:
+      summary: get corporate contributors for project
+      description: Returns list of corporate contributors for project
+      operationId: getCompanyProjectContributors
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      - $ref: '#/parameters/searchTerm'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/corporate-contributor-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - company
+  /company/{companySFID}/admin:
+    get:
+      summary: Returns a list of Company Admins (salesforce)
+      operationId: getCompanyAdmins
+      security: []
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-companySFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-admin-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+      tags:
+      - company
+  /company/{companySFID}/project/{projectSFID}/cla:
+    get:
+      summary: Returns the CLA Groups associated with the Project and Company
+      operationId: getCompanyProjectCla
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - $ref: '#/parameters/path-companySFID'
+      - $ref: '#/parameters/path-projectSFID'
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-project-cla-list'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+      tags:
+      - company
+  /user/{userID}/company:
+    post:
+      summary: API that creates a salesforce company
+      description: Creates a Company for an individual contributor that fails to get
+        a company during the signing getProjectSignatures
+      security: []
+      operationId: createCompany
+      parameters:
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/path-userID'
+      - name: input
+        in: body
+        schema:
+          $ref: '#/definitions/company-input'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/company-output'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '409':
+          $ref: '#/responses/conflict'
+        '422':
+          $ref: '#/responses/unprocessable-entity'
+      tags:
+      - company
+  /request-corporate-signature:
+    post:
+      summary: api generates the corporate signature which is ready to sign
+      description: Creates a new signature given project and company IDs. The manager
+        will be redirected to the return_url once signature is complete.
+      operationId: requestCorporateSignature
+      parameters:
+      - $ref: '#/parameters/authorization'
+      - $ref: '#/parameters/x-request-id'
+      - $ref: '#/parameters/x-acl'
+      - $ref: '#/parameters/x-username'
+      - $ref: '#/parameters/x-email'
+      - name: input
+        in: body
+        schema:
+          $ref: '#/definitions/corporate-signature-input'
+        required: true
+      responses:
+        '200':
+          description: Success
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway
+                based on the session
+          schema:
+            $ref: '#/definitions/corporate-signature-output'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '401':
+          $ref: '#/responses/unauthorized'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+        '409':
+          $ref: '#/responses/conflict'
+      tags:
+      - sign
+responses:
+  unauthorized:
+    description: Unauthorized
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  invalid-request:
+    description: Invalid request
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  forbidden:
+    description: Insufficient privilege to execute action
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  not-found:
+    description: Not found
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  internal-server-error:
+    description: Internal server error
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  conflict:
+    description: Duplicate Resource
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+  accepted-request:
+    description: Accepted request
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/success-response'
+  unprocessable-entity:
+    description: Unprocessable Entity - Validation Failure
+    headers:
+      x-request-id:
+        type: string
+        description: The unique request ID value - assigned/set by the API Gateway
+          based on the session
+    schema:
+      $ref: '#/definitions/error-response'
+parameters:
+  pageSize:
+    name: pageSize
+    description: The maximum number of results per page, value must be a positive
+      integer value
+    in: query
+    type: integer
+    required: false
+    minimum: 0
+    exclusiveMinimum: true
+  returnAllEvents:
+    name: returnAllEvents
+    description: The optional parameter which would avoid pagination and it will return
+      all data
+    in: query
+    type: boolean
+    required: false
+  searchField:
+    name: searchField
+    description: The optional user name filter
+    in: query
+    type: string
+    required: false
+    pattern: ^\w+$
+  searchTerm:
+    name: searchTerm
+    description: The optional search filter
+    in: query
+    type: string
+    required: false
+  fullMatch:
+    name: fullMatch
+    in: query
+    type: boolean
+    default: false
+    required: false
+  nextKey:
+    name: nextKey
+    description: The next key to scan - used as a page offset for scanning batches
+      of records
+    in: query
+    type: string
+    required: false
+  companyName:
+    name: companyName
+    description: The optional company name filter
+    in: query
+    type: string
+    required: false
+    pattern: ^([\w\d\s\-\,\./]+){2,255}$
+  userName:
+    name: userName
+    description: The optional user name filter
+    in: query
+    type: string
+    required: false
+    pattern: ^\w+$
+  signatureType:
+    name: signatureType
+    in: query
+    type: string
+    required: false
+    enum:
+    - ccla
+    - cla
+  claType:
+    name: claType
+    description: 'CLA Type query parameter - allows the caller to specify either individual,
+      employee or corporate signature, valid options: * `icla` - for individual contributor
+      signature records (individuals not associated with a corporation) * `ecla` -
+      for employee contributor signature records (acknowledgements from corporate
+      contributors) * `ccla` - for corporate contributor signature records (created
+      by CLA Signatories and managed by CLA Managers)
+
+      '
+    in: query
+    type: string
+    required: false
+    enum:
+    - icla
+    - ecla
+    - ccla
+  templateCLAType:
+    name: claType
+    in: query
+    type: string
+    required: true
+    enum:
+    - icla
+    - ccla
+  foundationSFID:
+    name: foundationSFID
+    description: the Salesforce ID of the Foundation
+    in: query
+    type: string
+  path-claGroupID:
+    name: claGroupID
+    description: ID of the CLA Group
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-foundationSFID:
+    name: foundationSFID
+    description: the Salesforce ID of the Foundation
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-projectSFID:
+    name: projectSFID
+    description: the Salesforce ID of the project
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-userID:
+    name: userID
+    description: v1 EasyCLA user Admin ID
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-userLFID:
+    name: userLFID
+    description: LFID of the user
+    in: path
+    type: string
+    required: true
+  path-companyID:
+    name: companyID
+    description: id of the company
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-companySFID:
+    name: companySFID
+    description: salesforce id of the company
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  path-companyName:
+    name: companyName
+    description: the company name
+    in: path
+    type: string
+    required: true
+    pattern: ^([\w\d\s\-\,\./]+){2,255}$
+  path-signatureID:
+    name: signatureID
+    description: id of the CLA signature
+    in: path
+    type: string
+    required: true
+    pattern: ^(\w)([\w\-.])+$
+    minLength: 5
+    maxLength: 255
+  companySFID:
+    name: companySFID
+    description: salesforce id of the company
+    in: query
+    type: string
+  gerritHost:
+    name: gerritHost
+    description: host of the gerrit server
+    in: query
+    type: string
+    format: hostname
+    minLength: 3
+    maxLength: 255
+  x-acl:
+    name: X-ACL
+    description: The access control list header value encoded as base64 - assigned
+      by the API Gateway based on user/request permissions
+    in: header
+    type: string
+    required: true
+    x-example: JImlzQWRtaW4iOiB0cnVlLAoJImFsbG93ZWQiOiB0cnVlLAoJImNvbnRleHQiOic3lzdGVtIgp9Cg==
+  authorization:
+    name: Authorization
+    description: Bearer token
+    in: header
+    type: string
+    required: true
+  x-username:
+    name: X-USERNAME
+    description: The username/LFID value - assigned/set by the API Gateway based on
+      login credentials
+    in: header
+    type: string
+    x-example: zachking123
+  x-email:
+    name: X-EMAIL
+    description: The email value - assigned/set by the API Gateway based on login
+      credentials
+    in: header
+    type: string
+    x-example: user@linuxfoundation.org
+  x-request-id:
+    name: X-REQUEST-ID
+    description: The unique request ID value - assigned/set by the API Gateway based
+      on the login session
+    in: header
+    type: string
+definitions:
+  version:
+    type: object
+    x-nullable: false
+    title: Version
+    description: Version Information
+    properties:
+      version:
+        type: string
+        description: the version identifier of the software for this version of the
+          product
+        example: v1.0.30-6-gd1ac2745
+      commit:
+        type: string
+        description: the git commit hash of the software for this version of the product
+        example: d1ac2745
+      branch:
+        type: string
+        description: the branch name of the software for this version of the product
+        example: master
+      buildDate:
+        type: string
+        description: the build date/time of the software for this version of the product
+        example: 2020-08-05T15:24:58+0000
+    required:
+    - version
+    - commit
+    - branch
+    - buildDate
+  health:
+    type: object
+    title: Health
+    properties:
+      TimeStamp:
+        type: string
+        description: the current date/time of the health report
+        example: 2020-08-05T15:24:58+0000
+      Status:
+        type: string
+        description: the status indicator for the product, either 'healthy' or 'not
+          healthy'
+        example: healthy
+      Version:
+        type: string
+        description: the version identifier of the software for this version of the
+          product
+        example: v1.0.30-6-gd1ac2745
+      Githash:
+        type: string
+        description: the git commit hash of the software for this version of the product
+        example: d1ac2745
+      Branch:
+        type: string
+        description: the branch name of the software for this version of the product
+        example: master
+      BuildTimeStamp:
+        type: string
+        description: the build date/time of the software for this version of the product
+        example: 2020-08-05T15:24:58+0000
+      Healths:
+        type: array
+        items:
+          $ref: '#/definitions/health-status'
+  health-status:
+    type: object
+    title: Health Status
+    properties:
+      Name:
+        type: string
+        description: the name of the sub-system for this health report
+        example: EasyCLA - Dynamodb - cla-dev-users
+      Duration:
+        type: string
+        description: the time with units on how long the health check took to execute
+        example: 17.478091ms
+      Healthy:
+        type: boolean
+        description: a flag to indicate if the sub-system is health or not
+        example: true
+      Error:
+        type: string
+        description: an optional attribute which is present if there is a health issue
+          with the sub-component
+        example: unable to connect to the dynamodb cla-dev-users table
+      TimeStamp:
+        type: string
+        description: the current date/time of the health report
+        example: 2020-08-05T15:24:58+0000
+  event-list:
+    type: object
+    properties:
+      NextKey:
+        type: string
+      Events:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/event'
+  event:
+    type: object
+    properties:
+      EventID:
+        type: string
+        description: unique id of the event
+      EventType:
+        type: string
+        description: type of the event
+      UserID:
+        type: string
+        description: id of the user who created this event
+      UserName:
+        type: string
+        description: name of the user
+      LfUsername:
+        type: string
+        description: name of the user
+      EventProjectID:
+        type: string
+        description: id of the SFID project
+      EventProjectName:
+        type: string
+        description: name of the project
+      EventCompanyName:
+        type: string
+        description: name of the company
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]+\-/%!@#$]*){2,255}$
+        example: Linux Foundation
+      EventCompanyID:
+        type: string
+        description: id of the organization/company
+      EventTime:
+        type: string
+        description: time of the event.
+      EventTimeEpoch:
+        type: integer
+        description: time of the event in epoch.
+      EventData:
+        type: string
+        description: data related to the event
+      EventSummary:
+        type: string
+        description: data related to the event summary
+      EventProjectExternalID:
+        type: string
+        description: the external Project ID related to this event
+      ContainsPII:
+        type: boolean
+        description: flag to indicate if this record contains personal identifiable
+          information
+      EventCompanySFID:
+        type: string
+        description: the external SFID associated with the company
+      EventFoundationSFID:
+        type: string
+        description: the external SFID associated with the foundation
+      EventProjectSFID:
+        type: string
+        description: the external SFID associated with the project. This would be
+          projectSFID if the CLA group have only one project otherwise it would be
+          foundationSFID
+      EventProjectSFName:
+        type: string
+        description: name of project to display. This would be name of project if
+          cla group have only one project otherwise it would be name of foundation
+  github-repository-input:
+    type: object
+    required:
+    - repository_github_id
+    - github_organization_name
+    - cla_group_id
+    properties:
+      repository_github_id:
+        type: string
+      github_organization_name:
+        type: string
+      cla_group_id:
+        type: string
+  github-repository-branch-protection-status-checks:
+    type: object
+    required:
+    - name
+    properties:
+      name:
+        type: string
+        description: check status name
+        example: EasyCLA
+      enabled:
+        type: boolean
+        default: false
+  github-repository-branch-protection:
+    type: object
+    required:
+    - branch_name
+    - protection_enabled
+    - enforce_admin
+    properties:
+      branch_name:
+        type: string
+      protection_enabled:
+        type: boolean
+        default: false
+      enforce_admin:
+        type: boolean
+        default: false
+      status_checks:
+        type: array
+        items:
+          $ref: '#/definitions/github-repository-branch-protection-status-checks'
+  github-repository-branch-protection-input:
+    type: object
+    properties:
+      enforce_admin:
+        type: boolean
+        default: false
+      status_checks:
+        type: array
+        items:
+          $ref: '#/definitions/github-repository-branch-protection-status-checks'
+  github-repository:
+    type: object
+    properties:
+      dateCreated:
+        type: string
+        description: Created date/time
+      dateModified:
+        type: string
+        description: Last modified date/time
+      repositoryExternalID:
+        type: string
+        description: The repository ID from the external service
+      repositoryID:
+        type: string
+        description: The internal repository ID
+      repositoryName:
+        type: string
+        description: The repository name
+      repositoryOrganizationName:
+        type: string
+        description: The organization name associated with this repository
+      repositoryProjectID:
+        type: string
+        description: The CLA Group ID associated with this repository
+      repositorySfdcID:
+        type: string
+      repositoryType:
+        type: string
+        description: The repository type - typically github, gerrit or possibly gitlab
+      repositoryUrl:
+        type: string
+        description: The external repository URL
+      enabled:
+        type: boolean
+        description: Flag to indicate if this repository is enabled or not. Repositories
+          may become disabled if they have been moved or deleted from GitHub.
+        x-omitempty: false
+      note:
+        type: string
+        description: An optional note field to store any additional information about
+          this record.  Helpful for auditing.
+      version:
+        type: string
+        description: The version identifier for this repository record
+      projectSFID:
+        type: string
+        description: The project SFID associated with this repository
+  list-github-repositories:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/github-repository'
+  cla-groups:
+    type: object
+    x-nullable: false
+    title: CLA Groups
+    description: A list of CLA Groups
+    properties:
+      lastKeyScanned:
+        type: string
+      pageSize:
+        type: integer
+      resultCount:
+        type: integer
+        format: int64
+        x-omitempty: false
+      projects:
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/cla-group'
+  cla-group:
+    type: object
+    x-nullable: false
+    title: CLA Group
+    description: CLA Group data model
+    properties:
+      projectID:
+        description: the CLA Group internal ID
+        example: b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f
+        type: string
+      foundationSFID:
+        description: the foundation sfid of the CLA Group
+        example: a09410000182dD2AAI
+        type: string
+      rootProjectRepositoriesCount:
+        description: number of repositories configured from root CLA Group
+        type: integer
+      projectExternalID:
+        description: the CLA Group external ID (used by v1)
+        example: a09410000182dD2AAI
+        type: string
+      projectName:
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      projectDescription:
+        type: string
+        example: CLA group created for OpenCue project
+        description: description of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,255}$
+        minLength: 2
+        maxLength: 256
+      projectACL:
+        type: array
+        description: A list of user ID's authorized to make changes to the CLA Group
+          (used by v1)
+        items:
+          type: string
+      foundationLevelCLA:
+        description: Flag indicating whether CLA is signed at Foundation level (true)
+          or Project level (false)
+        example: true
+        type: boolean
+        x-omitempty: false
+      projectCCLAEnabled:
+        description: Flag to indicate if the Corporate/Company Contributor License
+          Agreement is enabled
+        example: true
+        type: boolean
+        x-omitempty: false
+      projectICLAEnabled:
+        description: Flag to indicate if the Individual Contributor License Agreement
+          is enabled
+        example: true
+        type: boolean
+        x-omitempty: false
+      projectCCLARequiresICLA:
+        description: Flag to indicate if the CCLA configuration also requires an ICLA
+        example: true
+        type: boolean
+        x-omitempty: false
+      projectLive:
+        description: Flag to indicate if the CLA Group is live in production. Applies
+          to the production environment only, flag indicates if the CLA Group is being
+          actively used by the community.
+        type: boolean
+        x-omitempty: false
+      projectCorporateDocuments:
+        description: CLA Group Corporate Documents
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/cla-group-document'
+      projectIndividualDocuments:
+        description: CLA Group Corporate Documents
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/cla-group-document'
+      projectMemberDocuments:
+        description: CLA Group Corporate Documents
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/cla-group-document'
+      dateCreated:
+        description: Date/time the CLA Group was created
+        type: string
+      dateModified:
+        description: Date/time the CLA Group was last modified
+        type: string
+      version:
+        description: CLA Group record version
+        example: v1
+        type: string
+      githubRepositories:
+        description: GitHub repositories associated with project
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/github-repositories-group-by-orgs'
+      gerrits:
+        description: Gerrit Server instances associated with project
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/gerrit'
+  template:
+    type: object
+    x-nullable: false
+    title: CLA Template
+    description: CLA Template
+    properties:
+      Name:
+        type: string
+      ID:
+        type: string
+      description:
+        type: string
+      iclaHtmlBody:
+        type: string
+      cclaHtmlBody:
+        type: string
+      metaFields:
+        type: array
+        items:
+          $ref: '#/definitions/meta-field'
+      iclaFields:
+        type: array
+        items:
+          $ref: '#/definitions/field'
+      cclaFields:
+        type: array
+        items:
+          $ref: '#/definitions/field'
+  create-cla-group-template:
+    title: CreateCLAGroupTemplate
+    type: object
+    x-nullable: false
+    properties:
+      TemplateID:
+        type: string
+      MetaFields:
+        type: array
+        items:
+          $ref: '#/definitions/meta-field'
+  template-pdfs:
+    title: TemplatePDFs
+    type: object
+    x-nullable: false
+    properties:
+      individualPDFURL:
+        type: string
+      corporatePDFURL:
+        type: string
+  github-organizations:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/github-organization'
+  github-organization:
+    type: object
+    properties:
+      dateCreated:
+        type: string
+        example: 2020-02-06T09:31:49.245630+0000
+        minLength: 18
+        maxLength: 64
+      dateModified:
+        type: string
+        example: 2020-02-06T09:31:49.245646+0000
+        minLength: 18
+        maxLength: 64
+      organizationInstallationID:
+        type: integer
+        example: 6635271
+      organizationName:
+        type: string
+        example: communitybridge
+      organizationSfid:
+        type: string
+        example: a0941000002wBz4AAA
+      version:
+        type: string
+        example: v1
+      projectSFID:
+        type: string
+        example: a0941000002wBz4AAA
+      autoEnabled:
+        type: boolean
+        description: Flag to indicate if this GitHub Organization is configured to
+          allow new repositories to be auto-enabled/auto-enrolled in EasyCLA.
+        x-omitempty: false
+      branchProtectionEnabled:
+        type: boolean
+        description: Flag to indicate if this GitHub Organization is configured to
+          automatically setup branch protection on CLA enabled repositories.
+        x-omitempty: false
+      githubInfo:
+        type: object
+        properties:
+          error:
+            type: string
+            example: unable to get github info of communitybridge
+          details:
+            type: object
+            properties:
+              id:
+                type: integer
+                x-nullable: true
+                example: 1476068
+              bio:
+                type: string
+                x-nullable: true
+              htmlUrl:
+                type: string
+                x-nullable: true
+                example: https://github.com/communitybridge
+                format: uri
+      repositories:
+        type: object
+        properties:
+          error:
+            type: string
+            example: 'unable to get repositories for installation id : 6854001'
+          list:
+            type: array
+            items:
+              $ref: '#/definitions/github-repository-info'
+  create-github-organization:
+    type: object
+    required:
+    - organizationName
+    properties:
+      organizationName:
+        type: string
+        description: The GitHub Organization name
+        example: kubernetes
+        pattern: ^([\w\-\.]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      autoEnabled:
+        type: boolean
+        description: Flag to indicate if auto-enabled flag should be enabled. Organizations
+          with auto-enable turned on will automatically include any new repositories
+          to the EasyCLA configuration.
+        default: false
+      branchProtectionEnabled:
+        type: boolean
+        description: Flag to indicate if this GitHub Organization is configured to
+          automatically setup branch protection on CLA enabled repositories.
+        default: false
+  update-github-organization:
+    type: object
+    required:
+    - autoEnabled
+    properties:
+      autoEnabled:
+        type: boolean
+        description: Flag to indicate if auto-enabled flag should be enabled. Organizations
+          with auto-enable turned on will automatically include any new repositories
+          to the EasyCLA configuration.
+      branchProtectionEnabled:
+        type: boolean
+        description: Flag to indicate if this GitHub Organization is configured to
+          automatically setup branch protection on CLA enabled repositories.
+        x-omitempty: true
+  user:
+    type: object
+    x-nullable: false
+    title: User
+    description: User model
+    properties:
+      userID:
+        type: string
+      userExternalID:
+        type: string
+      username:
+        type: string
+      dateCreated:
+        type: string
+      dateModified:
+        type: string
+      lfEmail:
+        type: string
+      lfUsername:
+        type: string
+      companyID:
+        type: string
+      githubID:
+        type: string
+      githubUsername:
+        type: string
+      admin:
+        type: boolean
+      version:
+        type: string
+      note:
+        type: string
+      emails:
+        type: array
+        items:
+          type: string
+  signatures:
+    type: object
+    x-nullable: false
+    title: Signatures
+    description: Signatures
+    properties:
+      projectID:
+        type: string
+      resultCount:
+        type: integer
+        format: int64
+        x-omitempty: false
+      totalCount:
+        type: integer
+        format: int64
+        x-omitempty: false
+      lastKeyScanned:
+        type: string
+      signatures:
+        type: array
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/signature'
+  signature:
+    type: object
+    title: A signature model
+    description: A signature - may be an ICLA or CCLA signature
+    properties:
+      signatureID:
+        type: string
+        description: the signature ID
+        example: c71c469a-55ea-492d-9722-fd30b31da2aa
+        format: uuid4
+      claType:
+        type: string
+        description: 'CLA Type field - identifies the specify signature type - individual,
+          employee or corporate signature, valid options: * `icla` - for individual
+          contributor signature records (individuals not associated with a corporation)
+          * `ecla` - for employee contributor signature records (acknowledgements
+          from corporate contributors) * `ccla` - for corporate contributor signature
+          records (created by CLA Signatories and managed by CLA Managers)
+
+          '
+        enum:
+        - icla
+        - ecla
+        - ccla
+      signatureCreated:
+        type: string
+        description: the signature record created time
+        example: 2019-05-03T18:59:13.082304+0000
+        minLength: 18
+        maxLength: 64
+      signatureModified:
+        type: string
+        description: the signature modified created time
+        example: 2019-05-03T18:59:13.082304+0000
+        minLength: 18
+        maxLength: 64
+      signatureSigned:
+        type: boolean
+        description: the signature signed flag - true or false value
+        example: true
+      signatureApproved:
+        type: boolean
+        description: the signature approved flag - true or false value
+        example: true
+      signatureReferenceType:
+        type: string
+        description: the signature reference type - either user or company
+        example: user
+        minLength: 2
+        maxLength: 12
+      signatureReferenceID:
+        type: string
+        description: the signature reference ID which references a compnay ID or user
+          ID
+        example: c71c469a-55ea-492d-9722-fd30b31da2aa
+        format: uuid4
+      signatureReferenceName:
+        type: string
+      signatureReferenceNameLower:
+        type: string
+      signatureType:
+        type: string
+        description: the signature type - either cla or ccla
+        example: ccla
+        minLength: 2
+        maxLength: 12
+      signedOn:
+        type: string
+      signatoryName:
+        type: string
+      signatureACL:
+        type: array
+        items:
+          $ref: '#/definitions/user'
+      userName:
+        type: string
+      companyName:
+        type: string
+        description: the company name
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]+\-/%!@#$]*){2,255}$
+      projectID:
+        type: string
+        description: the CLA Group ID
+      userGHID:
+        type: string
+        description: the user's GitHub ID, when available
+        example: '13434323'
+      userGHUsername:
+        type: string
+        description: the user's GitHub username, when available
+        example: linux-user
+      userLFID:
+        type: string
+        description: the user's LF Login ID
+        example: abc1234
+      version:
+        type: string
+        description: the version of the signature record
+        example: v1
+        minLength: 2
+        maxLength: 12
+      created:
+        type: string
+        description: the date/time when this signature record was created
+        example: 2017-04-19T16:42:00.000000+0000
+      modified:
+        type: string
+        description: the date/time when this signature record was last modified
+        example: 2019-07-15T15:28:33.127118+0000
+      signatureMajorVersion:
+        type: string
+        description: the signature major version number
+        example: '2'
+      signatureMinorVersion:
+        type: string
+        description: the signature minor version number
+        example: '1'
+      emailApprovalList:
+        type: array
+        description: a list of zero or more email addresses in the approval list
+        x-nullable: true
+        items:
+          type: string
+      domainApprovalList:
+        type: array
+        description: a list of zero or more domains in the approval list
+        x-nullable: true
+        items:
+          type: string
+      githubUsernameApprovalList:
+        type: array
+        description: a list of zero or more GitHub user name values in the approval
+          list
+        x-nullable: true
+        items:
+          type: string
+      githubOrgApprovalList:
+        type: array
+        description: a list of zero or more GitHub organization values in the approval
+          list
+        x-nullable: true
+        items:
+          type: string
+  icla-signatures:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/icla-signature'
+  icla-signature:
+    type: object
+    title: ICLASignature
+    properties:
+      signature_id:
+        type: string
+      github_username:
+        type: string
+      lf_username:
+        type: string
+      user_name:
+        type: string
+      user_email:
+        type: string
+      signed_on:
+        type: string
+  approval-list:
+    type: object
+    title: A signature approval list
+    description: A signature approval list for a project / company
+    properties:
+      AddEmailApprovalList:
+        type: array
+        description: a list of zero or more email addresses to be added to the approval
+          list
+        x-nullable: true
+        items:
+          type: string
+      RemoveEmailApprovalList:
+        type: array
+        description: a list of zero or more email addresses to be from to the approval
+          list
+        x-nullable: true
+        items:
+          type: string
+      AddDomainApprovalList:
+        type: array
+        description: a list of zero or more domains to be added to the approval list
+        x-nullable: true
+        items:
+          type: string
+      RemoveDomainApprovalList:
+        type: array
+        description: a list of zero or more domains to be removed from the approval
+          list
+        x-nullable: true
+        items:
+          type: string
+      AddGithubUsernameApprovalList:
+        type: array
+        description: a list of zero or more GitHub user name values to be added to
+          the approval list
+        x-nullable: true
+        items:
+          type: string
+      RemoveGithubUsernameApprovalList:
+        type: array
+        description: a list of zero or more GitHub user name values to be removed
+          from the approval list
+        x-nullable: true
+        items:
+          type: string
+      AddGithubOrgApprovalList:
+        type: array
+        description: a list of zero or more GitHub organization values to be added
+          to the approval list
+        x-nullable: true
+        items:
+          type: string
+      RemoveGithubOrgApprovalList:
+        type: array
+        description: a list of zero or more GitHub organization values to be removed
+          from the approval list
+        x-nullable: true
+        items:
+          type: string
+  github-org:
+    type: object
+    x-nullable: false
+    title: Github Organization
+    description: Github Organiation object used for CCLA whitelist
+    properties:
+      id:
+        type: string
+      selected:
+        type: boolean
+        default: false
+    required:
+    - id
+  gh-org-whitelist:
+    type: object
+    x-nullable: false
+    title: Github Organization Whitelist
+    description: Github Organiation Whitelist
+    properties:
+      organization_id:
+        type: string
+    required:
+    - organization_id
+  add-gerrit-input:
+    type: object
+    required:
+    - gerritName
+    - gerritUrl
+    properties:
+      gerritName:
+        type: string
+        description: the gerrit name
+        example: ONAP
+        minLength: 3
+        pattern: ^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$
+      gerritUrl:
+        description: "the gerrit url - must be one of the currently supported LF managed\
+          \ Gerrit instances:\n  https://gerrit.linuxfoundation.org\n  https://gerrit.onap.org\n\
+          \  https://gerrit.o-ran-sc.org\n  https://gerrit.tungsten.io\n  https://gerrit.opnfv.org\n"
+        example: https://gerrit.onap.org
+        type: string
+        enum:
+        - https://gerrit.linuxfoundation.org
+        - https://gerrit.onap.org
+        - https://gerrit.o-ran-sc.org
+        - https://gerrit.tungsten.io
+        - https://gerrit.opnfv.org
+      groupIdCcla:
+        type: string
+        description: the LDAP group ID for CCLA
+        example: '1902'
+        minLength: 3
+        maxLength: 12
+      groupIdIcla:
+        type: string
+        description: the LDAP group ID for ICLA
+        example: '1903'
+        minLength: 3
+        maxLength: 12
+      version:
+        type: string
+        description: the version associated with the gerrit record
+        example: v1
+  gerrit-repo:
+    type: object
+    properties:
+      name:
+        type: string
+        description: the name of the gerrit repository
+        example: ansible/roles/docker-install
+        minLength: 2
+        maxLength: 255
+      id:
+        type: string
+        description: the id of the gerrit repository, typically the base64 encoding
+          of the name
+        example: ansible%2Froles%2Fdocker-install
+        minLength: 2
+        maxLength: 255
+      description:
+        type: string
+        description: the gerrit repository description
+        example: Ansible docker installation role
+      state:
+        type: string
+        description: the gerrit server's state of the gerrit repository, typically
+          ACTIVE, READ_ONLY, or HIDDEN
+        example: ACTIVE
+        minLength: 2
+        maxLength: 30
+      connected:
+        type: boolean
+        description: 'the connected state between EasyCLA and the Gerrit repository:
+          true or false value'
+        example: true
+      claEnabled:
+        type: boolean
+        description: flag to indicate if this repository is CLA enabled or not
+        example: true
+      contributorAgreements:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: the name of the contributor agreement
+              example: CLA Project 1
+              minLength: 2
+              maxLength: 255
+            description:
+              type: string
+              description: the description of the contributor agreement
+              example: Test Project Authorized Contributor
+            url:
+              type: string
+              description: the link to the agreement
+              example: https://api.dev.lfcla.com/v2/gerrit/138c2d54-1151-11e9-ab14-d663bd873d93/individual/agreementUrl.html
+              format: uri
+      webLinks:
+        type: array
+        items:
+          type: object
+          properties:
+            name:
+              type: string
+              description: the weblink name
+              example: gitweb
+              minLength: 2
+              maxLength: 255
+            url:
+              type: string
+              description: the weblink url
+              example: https://gerrit.linuxfoundation.org/infra/gitweb?p\u003dansible%2Froles%2Fhaveged-install.git;a\u003dsummary
+              format: uri
+  gerrit-repo-list:
+    type: object
+    properties:
+      repos:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/gerrit-repo'
+  gerrit:
+    type: object
+    properties:
+      dateCreated:
+        type: string
+        description: the gerrit record created time
+        example: 2019-05-03T18:59:13.082304+0000
+        minLength: 18
+        maxLength: 64
+      dateModified:
+        type: string
+        description: the gerrit record modified time
+        example: 2019-05-03T18:59:13.082304+0000
+        minLength: 18
+        maxLength: 64
+      gerritId:
+        type: string
+        description: the gerrit record ID
+        example: e82c469a-55ea-492d-9722-fd30b31da2aa
+        minLength: 5
+        maxLength: 255
+        format: uuid4
+      gerritName:
+        type: string
+        description: the gerrit name
+        example: ONAP
+        minLength: 3
+      gerritUrl:
+        type: string
+        description: the gerrit url
+        example: https://gerrit.onap.org
+        minLength: 3
+        format: uri
+      groupIdCcla:
+        type: string
+        description: the LDAP group ID for CCLA
+        example: '1902'
+        minLength: 3
+        maxLength: 12
+      groupIdIcla:
+        type: string
+        description: the LDAP group ID for ICLA
+        example: '1903'
+        minLength: 3
+        maxLength: 12
+      groupNameCcla:
+        type: string
+        description: the LDAP group name for CCLA
+        example: onap-cla-ccla
+        minLength: 3
+        maxLength: 20
+      groupNameIcla:
+        type: string
+        description: the LDAP group name for ICLA
+        example: onap-cla-icla
+        minLength: 3
+        maxLength: 20
+      projectSFID:
+        type: string
+        description: the Project SalesForce ID (external ID) associated with this
+          gerrit record
+        example: abda234423
+        minLength: 5
+        maxLength: 255
+      projectId:
+        type: string
+        description: the CLA Group ID (project ID) associated with this gerrit record
+        example: c71c469a-55ea-492d-9722-fd30b31da2aa
+        minLength: 5
+        maxLength: 255
+      version:
+        type: string
+        description: the version associated with the gerrit record
+        example: v1
+        minLength: 2
+        maxLength: 12
+      gerrit-repo-list:
+        $ref: '#/definitions/gerrit-repo-list'
+  gerrit-list:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/gerrit'
+  github-repositories-group-by-orgs:
+    type: object
+    properties:
+      organizationName:
+        type: string
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/github-repository'
+  cla-group-document:
+    type: object
+    x-nullable: false
+    title: CLA Group Document
+    description: CLA Group Document Definition
+    properties:
+      documentName:
+        description: the document name
+        example: Apache Style
+        type: string
+      documentFileID:
+        description: the document file ID
+        example: fb4cc144-a76c-4c17-8a52-c648f158fded
+        type: string
+      documentPreamble:
+        description: the document preamble
+        example: Apache Style
+        type: string
+      documentLegalEntityName:
+        description: the document legal entity name
+        example: Apache Style
+        type: string
+      documentAuthorName:
+        description: the document author name
+        example: Apache Style
+        type: string
+      documentContentType:
+        description: the document content type
+        example: storage+pdf
+        type: string
+      documentS3URL:
+        description: the document S3 URL
+        example: https://cla-signature-files-dev.s3.amazonaws.com/contract-group/f7222222-7777-4444-aaaa-1c1c1c1c1c1c/template/ccla.pdf
+        type: string
+      documentMajorVersion:
+        description: the document major version
+        example: '2'
+        type: string
+      documentMinorVersion:
+        description: the document minor version
+        example: '0'
+        type: string
+      documentCreationDate:
+        description: the document creation date
+        example: '2019-08-01T06:55:09Z'
+        type: string
+  meta-field:
+    title: MetaField
+    type: object
+    properties:
+      name:
+        type: string
+      value:
+        type: string
+      description:
+        type: string
+      templateVariable:
+        type: string
+  field:
+    title: Field
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      anchorString:
+        type: string
+      fieldType:
+        type: string
+      isOptional:
+        type: boolean
+      isEditable:
+        type: boolean
+      width:
+        type: integer
+      height:
+        type: integer
+      offsetX:
+        type: integer
+      offsetY:
+        type: integer
+  github-repository-info:
+    type: object
+    properties:
+      repositoryGithubID:
+        type: integer
+        example: 250509778
+      repositoryName:
+        type: string
+        example: communitybridge/easycla
+      repositoryType:
+        type: string
+        example: github
+      repositoryUrl:
+        type: string
+        example: https://github.com/communitybridge/easycla
+  total-count-metrics:
+    type: object
+    properties:
+      corporateContributorsCount:
+        type: integer
+        x-omitempty: false
+      individualContributorsCount:
+        type: integer
+        x-omitempty: false
+      claManagersCount:
+        type: integer
+        x-omitempty: false
+      contributorsCount:
+        type: integer
+        x-omitempty: false
+      projectsCount:
+        type: integer
+        x-omitempty: false
+      companiesCount:
+        type: integer
+        x-omitempty: false
+      repositoriesCount:
+        type: integer
+        x-omitempty: false
+      githubRepositoriesCount:
+        type: integer
+        x-omitempty: false
+      gerritRepositoriesCount:
+        type: integer
+        x-omitempty: false
+      companiesProjectContributionCount:
+        type: integer
+        x-omitempty: false
+      lfMembersCLACount:
+        type: integer
+        x-omitempty: false
+      nonLfMembersCLACount:
+        type: integer
+        x-omitempty: false
+      createdAt:
+        type: string
+    title: CLA total metrics
+  top-companies:
+    type: object
+    properties:
+      topCompaniesByProjectCount:
+        type: array
+        items:
+          $ref: '#/definitions/company-metric'
+      topCompaniesByCorporateContributors:
+        type: array
+        items:
+          $ref: '#/definitions/company-metric'
+      topCompaniesByClaManagers:
+        type: array
+        items:
+          $ref: '#/definitions/company-metric'
+      averageCompanyProjectCount:
+        type: integer
+        x-omitempty: false
+      averageCompanyCorporateContributors:
+        type: integer
+        x-omitempty: false
+      averageCompanyClaManagers:
+        type: integer
+        x-omitempty: false
+  top-projects:
+    type: object
+    properties:
+      topProjectsByIcla:
+        type: array
+        items:
+          $ref: '#/definitions/project-metric'
+      topProjectsByCcla:
+        type: array
+        items:
+          $ref: '#/definitions/project-metric'
+      topProjectsByIclaAndCcla:
+        type: array
+        items:
+          $ref: '#/definitions/project-metric'
+  company-metric:
+    type: object
+    properties:
+      id:
+        type: string
+      companyName:
+        example: Linux Foundation
+        type: string
+        description: name of the company
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      claManagersCount:
+        type: integer
+        x-omitempty: false
+      corporateContributorsCount:
+        type: integer
+        x-omitempty: false
+      projectsCount:
+        type: integer
+        x-omitempty: false
+      createdAt:
+        type: string
+    title: Company metrics
+  company-input:
+    type: object
+    required:
+    - userEmail
+    - companyName
+    - companyWebsite
+    properties:
+      companyName:
+        example: Linux Foundation
+        type: string
+        description: name of the company
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      companyWebsite:
+        description: the company website
+        type: string
+        example: https://linuxfoundation.org
+        format: url
+        pattern: ^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$
+        minLength: 5
+        maxLength: 255
+      userEmail:
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+  company-output:
+    type: object
+    properties:
+      companyName:
+        example: Linux Foundation
+        type: string
+        description: name of the company
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      companyWebsite:
+        type: string
+      logoURL:
+        type: string
+      companyID:
+        type: string
+  cla-manager-distribution:
+    type: object
+    properties:
+      oneClaManager:
+        type: integer
+        x-omitempty: false
+      twoClaManagers:
+        type: integer
+        x-omitempty: false
+      threeClaManagers:
+        type: integer
+        x-omitempty: false
+      fourOrMoreClaManagers:
+        type: integer
+        x-omitempty: false
+      createdAt:
+        type: string
+    title: CLA manager distribution across companies
+  list-project-metric:
+    type: object
+    properties:
+      nextKey:
+        type: string
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/sf-project-metric'
+  company-project-metrics:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/company-project-metric'
+  company-project-metric:
+    type: object
+    properties:
+      companyID:
+        type: string
+        x-omitempty: false
+      projectID:
+        type: string
+        x-omitempty: false
+      claManagersCount:
+        type: integer
+        x-omitempty: false
+      contributorsCount:
+        type: integer
+        x-omitempty: false
+      projectName:
+        x-omitempty: false
+        type: string
+        description: The name of the project
+        example: Cloud Foundry Foundation
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      claGroupName:
+        x-omitempty: false
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      companyName:
+        x-omitempty: false
+        example: Linux Foundation
+        type: string
+        description: name of the company
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      projectSFID:
+        type: string
+        x-omitempty: false
+  sf-project-metric:
+    type: object
+    properties:
+      projectExternalId:
+        type: string
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/project-metric'
+  project-metric:
+    type: object
+    properties:
+      id:
+        type: string
+      externalProjectID:
+        type: string
+      projectName:
+        type: string
+        description: The name of the project
+        example: Cloud Foundry Foundation
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      companiesCount:
+        type: integer
+        x-omitempty: false
+      claManagersCount:
+        type: integer
+        x-omitempty: false
+      corporateContributorsCount:
+        type: integer
+        x-omitempty: false
+      individualContributorsCount:
+        type: integer
+        x-omitempty: false
+      totalContributorsCount:
+        type: integer
+        x-omitempty: false
+      repositoriesCount:
+        type: integer
+        x-omitempty: false
+      createdAt:
+        type: string
+    title: project metrics
+  company:
+    type: object
+    x-nullable: false
+    title: Company
+    description: Company Model
+    properties:
+      companyID:
+        description: The company unique internal ID
+        example: 13f79a8f-734d-44c1-ab03-ab98c2a1b64a
+        type: string
+      companyExternalID:
+        description: the company external ID
+        type: string
+        example: 00117000015vpjXAAQ
+      companyName:
+        description: The company name
+        example: Linux Foundation
+        type: string
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]+\-/%!@#$]*){2,255}$
+      companyManagerID:
+        description: The company manager id
+        type: string
+        example: 333b7f59-0847-40dc-88a0-5ee4d4ea3075
+      companyACL:
+        type: array
+        description: A list of user ID's authorized to make changes to the company
+        items:
+          type: string
+      created:
+        type: string
+        description: The company record created date/time
+        format: date-time
+        example: '2019-09-18T21:40:50.734Z'
+      updated:
+        type: string
+        description: The company record update date/time
+        format: date-time
+        example: '2019-09-18T21:40:50.734Z'
+      note:
+        type: string
+        description: An optional note associated with this company record
+        example: Added by David to support CNCF migration
+      version:
+        type: string
+        description: the version of the company record
+        x-omitempty: false
+        example: v1
+  company-cla-managers:
+    type: object
+    title: Company CLA Managers
+    description: List of CLA Managers for the company
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/company-cla-manager'
+  cla-manager-designees:
+    type: object
+    title: cla manager designees
+    description: List of cla manager designee roles for a user
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/cla-manager-designee'
+  contributors:
+    type: object
+    title: contributors
+    description: List of contributor roles for a user
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/contributor'
+  contributor:
+    type: object
+    title: Contributor
+    description: Contributor association with an org
+    properties:
+      lf_username:
+        type: string
+        description: the LF username
+        x-omitempty: false
+        example: john.doe
+      user_sfid:
+        type: string
+        description: the user SalesForce ID
+        x-omitempty: false
+      email:
+        x-omitempty: false
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      assigned_on:
+        type: string
+        x-omitempty: false
+      company_sfid:
+        type: string
+        description: the Organization SalesForce ID
+        x-omitempty: false
+        example: abc134234adsdf43
+      role:
+        type: string
+        description: The role association with company
+        example: contributor
+        x-omitempty: false
+  company-owner:
+    type: object
+    title: Company Owner
+    description: Company Owner
+    properties:
+      lf_username:
+        type: string
+        description: the LF username
+        x-omitempty: false
+        example: username
+      name:
+        type: string
+        description: name of the user
+        example: john
+        x-omitempty: false
+      user_sfid:
+        type: string
+        description: the user SalesForce ID
+        x-omitempty: false
+      email:
+        x-omitempty: false
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      type:
+        type: string
+        x-omitempty: false
+        example: contact
+      assigned_on:
+        type: string
+        x-omitempty: false
+      company_sfid:
+        type: string
+        description: the Organization SalesForce ID
+        x-omitempty: false
+        example: abc134234adsdf43
+  cla-manager-designee:
+    type: object
+    title: Company CLA Designee
+    description: CLA Manager Designee details
+    properties:
+      lf_username:
+        type: string
+        description: the LF username
+        x-omitempty: false
+        example: john.doe
+      name:
+        type: string
+        description: name of the user
+        example: john
+        x-omitempty: false
+      user_sfid:
+        type: string
+        description: the user SalesForce ID
+        x-omitempty: false
+      email:
+        x-omitempty: false
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      type:
+        type: string
+        x-omitempty: false
+        example: contact
+      assigned_on:
+        type: string
+        x-omitempty: false
+      company_sfid:
+        type: string
+        description: the Organization SalesForce ID
+        x-omitempty: false
+        example: abc134234adsdf43
+      project_sfid:
+        type: string
+        description: the project SalesForce ID
+        x-omitempty: false
+        example: a2g17000000hyxNAAA
+      project_name:
+        type: string
+        description: name of the salesforce project
+        example: Appium
+        x-omitempty: false
+  company-cla-manager:
+    type: object
+    title: Company CLA Manager
+    description: CLA Managers details
+    properties:
+      lf_username:
+        type: string
+        description: The CLA Manager's LF username
+        x-omitempty: false
+        example: john.doe
+      name:
+        type: string
+        description: The CLA Manager's name
+        x-omitempty: false
+        example: John Doe
+      user_sfid:
+        type: string
+        description: The CLA Manager's user Salesforce ID
+        x-omitempty: false
+      email:
+        x-omitempty: false
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      approved_on:
+        type: string
+        x-omitempty: false
+      project_id:
+        type: string
+        description: The Project ID
+        x-omitempty: false
+        example: e1e30240-a722-4c82-a648-121681d959c7
+      project_sfid:
+        type: string
+        description: The Project SalesForce ID
+        x-omitempty: false
+        example: a2g17000000hyxNAAA
+      project_name:
+        type: string
+        description: The name of the SalesForce project
+        example: Appium
+        x-omitempty: false
+      cla_group_name:
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      organization_name:
+        type: string
+        description: The name of Salesforce organization
+        x-omitempty: false
+        example: Intel Corporation
+      organization_sfid:
+        type: string
+        x-omitempty: false
+        example: 00117000015vpjXAAQ
+  cla-manager-user:
+    type: object
+    required:
+    - firstName
+    - lastName
+    - userEmail
+    x-nullable: false
+    title: CLA Manager User
+    description: User object used for CLA Manager requests
+    properties:
+      firstName:
+        type: string
+        minLength: 2
+        maxLength: 30
+      lastName:
+        type: string
+        minLength: 2
+        maxLength: 30
+      userEmail:
+        description: CLA Manager Email
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+  enabled-cla-list:
+    type: object
+    title: Enabled CLA list
+    description: List of CLA enabled projects for a specified Foundation
+    properties:
+      foundationLevelCLA:
+        description: Flag indicating whether CLA is signed at Foundation level (true)
+          or Project level (false)
+        type: boolean
+        x-omitempty: false
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/enabled-cla'
+  enabled-cla:
+    type: object
+    title: Project that is CLA enabled
+    description: A project description of which is CLA enabled
+    properties:
+      project_name:
+        type: string
+        description: the Project Name
+        example: Appium
+        x-omitempty: false
+      foundation_sfid:
+        type: string
+        description: the Project Group (previously Foundation) SFID
+        example: d9f17888888hyxsx4u
+        x-omitempty: false
+      project_sfid:
+        type: string
+        description: the Project SFID
+        example: a2g17000000hyxNABB
+        x-omitempty: false
+      project_type:
+        type: string
+        example: Project
+        x-omitempty: false
+      project_logo:
+        type: string
+        example: http://wwwlinuxfoundation.org/logo.gif
+        x-omitempty: false
+      ccla_enabled:
+        type: boolean
+        description: flag to indicate if corporate CLAs are enabled
+        default: false
+        x-omitempty: false
+      icla_enabled:
+        type: boolean
+        description: flag to indicate if individual CLAs are enabled
+        default: false
+        x-omitempty: false
+      ccla_requires_icla:
+        type: boolean
+        description: flag to indicate if individual ICLAs should be signed with corporate
+          CLAs are signed
+        default: false
+        x-omitempty: false
+  active-cla-list:
+    type: object
+    title: Active cla list of the companies
+    description: details of the companies active cla
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/active-cla'
+  notify-cla-manager-list:
+    type: object
+    title: Cla Manager list and contributor userID for given company and Project
+    description: list of CLA Manager emails and contributor userID
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/notify-cla-manager'
+      userID:
+        type: string
+      companyName:
+        example: Linux Foundation
+        type: string
+        description: name of the company
+        pattern: ^([\w\d\s\-\,\./]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      claGroupName:
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+  notify-cla-manager:
+    type: object
+    properties:
+      email:
+        description: CLA Manager email
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      name:
+        type: string
+  company-project-cla-list:
+    type: object
+    properties:
+      signed_cla_list:
+        type: array
+        items:
+          $ref: '#/definitions/active-cla'
+      unsigned_project_list:
+        type: array
+        items:
+          $ref: '#/definitions/unsigned_project'
+  company-admin-list:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/admin_sf'
+  admin_sf:
+    type: object
+    title: salesforce company admin
+    description: salesforce company admin
+    properties:
+      id:
+        type: string
+        x-omitempty: false
+      username:
+        type: string
+        x-omitempty: false
+      email:
+        type: string
+        x-omitempty: false
+  unsigned_project:
+    type: object
+    title: unsigned project
+    description: details of unsigned project
+    properties:
+      cla_group_id:
+        type: string
+        x-omitempty: false
+        example: e1e30240-a722-4c82-a648-121681d959c7
+      cla_group_name:
+        x-omitempty: false
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      project_sfid:
+        type: string
+        x-omitempty: false
+        example: a2g17000000hyxNAAA
+      project_name:
+        type: string
+        x-omitempty: false
+        example: Appium
+      ccla_enabled:
+        type: boolean
+        x-omitempty: false
+      icla_enabled:
+        type: boolean
+        x-omitempty: false
+      can_sign:
+        type: boolean
+        x-omitempty: false
+        description: if requesting user is cla-designee then this would be true
+      sub_projects:
+        type: array
+        items:
+          type: string
+  active-cla:
+    type: object
+    title: Active CLA of the company
+    description: Details of the active CLA Group
+    properties:
+      signed_on:
+        type: string
+        x-omitempty: false
+        example: 2019-07-18T11:38:13.144674+0000
+      project_id:
+        type: string
+        description: The CLA Group/Project ID
+        x-omitempty: false
+        example: e1e30240-a722-4c82-a648-121681d959c7
+      project_sfid:
+        type: string
+        description: The project SalesForce ID
+        x-omitempty: false
+        example: a2g17000000hyxNAAA
+      project_name:
+        type: string
+        description: The project name
+        example: Appium
+        x-omitempty: false
+      project_type:
+        type: string
+        description: The project type, typically either 'Project Group' (formerly
+          Foundation) or 'Project'
+        example: Project Group
+        x-omitempty: false
+      sub_projects:
+        type: array
+        description: The list of sub-projects
+        items:
+          type: string
+      signatory_name:
+        type: string
+        example: John Doe
+        x-omitempty: false
+      signature_id:
+        type: string
+        example: 55ec4162-9e41-47da-a643-f81666953a51
+        x-omitempty: false
+      project_logo:
+        type: string
+        example: http://wwwlinuxfoundation.org/logo.gif
+        x-omitempty: false
+      cla_group_name:
+        x-omitempty: false
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      ccla_url:
+        type: string
+        x-omitempty: false
+  corporate-contributor-list:
+    type: object
+    title: corporate contributors list
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/corporate-contributor'
+  corporate-contributor:
+    type: object
+    properties:
+      name:
+        type: string
+        example: john doe
+        x-omitempty: false
+      linux_foundation_id:
+        type: string
+        example: john.doe
+        x-omitempty: false
+      github_id:
+        type: string
+        example: '123456'
+        x-omitempty: false
+      email:
+        type: string
+        example: v1
+        x-omitempty: false
+      signature_version:
+        type: string
+        example: v1
+        x-omitempty: false
+      timestamp:
+        type: string
+        x-omitempty: false
+  corporate-signature-input:
+    type: object
+    required:
+    - project_sfid
+    - company_sfid
+    properties:
+      project_sfid:
+        type: string
+        example: a0941000005ouJFAAY
+        description: salesforce id of the project
+      company_sfid:
+        type: string
+        example: 0014100000Te0fMAAR
+        description: salesforce id of the company
+      send_as_email:
+        type: boolean
+        example: false
+        description: send signing request as email. This should be set to true when
+          requestor is not signatory.
+      authority_name:
+        type: string
+        example: John Doe
+        description: name of the cla signatory
+        pattern: ^[a-zA-Z0-9]+(([',. -][a-zA-Z0-9 ])?[a-zA-Z0-9]*)*$
+      authority_email:
+        description: Email of the CLA Signatory
+        type: string
+        example: user@linuxfoundation.org
+        format: email
+        pattern: ^([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$
+      return_url:
+        type: string
+        example: https://corporate.dev.lfcla.com/#/company/eb4d7d71-693f-4047-bf8d-10d0e7764969
+        description: on signing the document, page will get redirected to this url.
+          This is valid only when send_as_email is false
+        format: uri
+  corporate-signature-output:
+    type: object
+    properties:
+      signature_id:
+        type: string
+        description: id of the signature
+      sign_url:
+        type: string
+        description: signing url
+  signed_document:
+    type: object
+    properties:
+      signature_id:
+        type: string
+        description: id of the signature
+      signed_cla_url:
+        type: string
+        description: pdf url of the signed agreement
+  create-cla-group-input:
+    type: object
+    required:
+    - cla_group_name
+    - ccla_enabled
+    - ccla_requires_icla
+    - icla_enabled
+    - foundation_sfid
+    - template_fields
+    properties:
+      cla_group_name:
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      cla_group_description:
+        type: string
+        example: CLA group created for OpenCue project
+        description: description of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,255}$
+        minLength: 2
+        maxLength: 256
+      ccla_enabled:
+        type: boolean
+        example: true
+        description: flag to indicate if ccla is enabled
+      ccla_requires_icla:
+        type: boolean
+        example: true
+        description: flag to indicate if corporate contributors requires to sign icla
+      icla_enabled:
+        type: boolean
+        example: true
+        description: flag to indicate if icla is enabled
+      foundation_sfid:
+        type: string
+        example: a09410000182dD2AAI
+        description: foundation sfid under which this cla group is created
+      project_sfid_list:
+        description: list of projects under foundation for which this cla group is
+          created
+        type: array
+        items:
+          type: string
+          example: a092M00001IV3znQAD
+      template_fields:
+        description: template variables using which icla/ccla template will be created
+        $ref: '#/definitions/create-cla-group-template'
+  update-cla-group-input:
+    type: object
+    properties:
+      cla_group_name:
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      cla_group_description:
+        type: string
+        example: CLA group created for OpenCue project
+        description: description of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,255}$
+        minLength: 2
+        maxLength: 256
+  cla-group-list-summary:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/cla-group-summary'
+  cla-group-summary:
+    type: object
+    properties:
+      foundationLevelCLA:
+        description: Flag indicating whether CLA is signed at Foundation level (true)
+          or Project level (false)
+        type: boolean
+        x-omitempty: false
+      cla_group_id:
+        type: string
+        example: b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f
+        description: id of the CLA group
+        x-omitempty: false
+      cla_group_name:
+        x-omitempty: false
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      cla_group_description:
+        x-omitempty: false
+        type: string
+        example: CLA group created for OpenCue project
+        description: description of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,255}$
+        minLength: 2
+        maxLength: 256
+      ccla_enabled:
+        type: boolean
+        example: true
+        description: flag to indicate if CCLA is enabled
+        x-omitempty: false
+      ccla_requires_icla:
+        type: boolean
+        example: true
+        description: flag to indicate if corporate contributors requires to sign ICLA
+        x-omitempty: false
+      icla_enabled:
+        type: boolean
+        example: true
+        description: flag to indicate if ICLA is enabled
+        x-omitempty: false
+      foundation_sfid:
+        type: string
+        example: a09410000182dD2AAI
+        description: foundation sfid under which this CLA group is created
+        x-omitempty: false
+      root_project_repositories_count:
+        type: integer
+        description: number of repositories added to this CLA Group from root project
+        x-omitempty: false
+      foundation_name:
+        type: string
+        example: Academy Software Foundation
+        description: foundation name under which this CLA group is created
+        x-omitempty: false
+      repositories_count:
+        type: integer
+        description: total repositories under this cla-group
+        x-omitempty: false
+      total_signatures:
+        type: integer
+        description: aggregate count of ICLA and CCLA contributors within this CLA
+          Group
+        x-omitempty: false
+      project_list:
+        x-omitempty: false
+        description: list of projects under foundation for which this CLA group is
+          created
+        type: array
+        items:
+          $ref: '#/definitions/cla-group-project'
+      icla_pdf_url:
+        description: template URL for ICLA document
+        type: string
+        example: https://cla-signature-files-dev.s3.amazonaws.com/contract-group/b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f/template/icla.pdf
+        x-omitempty: false
+      ccla_pdf_url:
+        description: template URL for CCLA document
+        type: string
+        example: https://cla-signature-files-dev.s3.amazonaws.com/contract-group/b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f/template/ccla.pdf
+        x-omitempty: false
+  cla-group-project:
+    type: object
+    properties:
+      project_sfid:
+        type: string
+        description: salesforce id of the project in cla-group
+        example: a092M00001IV3znQAD
+        x-omitempty: false
+      project_name:
+        type: string
+        description: salesforce name of the project in cla-group
+        example: Academy Software Foundation
+        x-omitempty: false
+      repositories_count:
+        description: repositories added from this project into cla-group
+        type: integer
+        x-omitempty: false
+  cla-group-validation-request:
+    type: object
+    properties:
+      cla_group_name:
+        x-omitempty: true
+        x-nullable: true
+        example: OpenCue
+        type: string
+        description: name of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,100}$
+        minLength: 2
+        maxLength: 100
+      cla_group_description:
+        x-omitempty: true
+        x-nullable: true
+        type: string
+        example: CLA group created for OpenCue project
+        description: description of the CLA group
+        pattern: ^([\w\p{L}][\w\s\p{L}()\[\]\.\,+-_]*){2,255}$
+        minLength: 2
+        maxLength: 256
+  cla-group-validation-response:
+    type: object
+    properties:
+      valid:
+        type: boolean
+        example: true
+        description: returns true if the CLA Group validates, false otherwise
+        x-omitempty: false
+      validation_errors:
+        x-omitempty: true
+        description: list of CLA Group validation errors
+        type: array
+        items:
+          type: string
+          example: duplicate CLA Group name
+  foundation-mapping-list:
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/foundation-mapping'
+  foundation-mapping:
+    type: object
+    properties:
+      foundation_sfid:
+        type: string
+      cla_groups:
+        type: array
+        items:
+          $ref: '#/definitions/cla-group-projects'
+  cla-group-projects:
+    type: object
+    properties:
+      cla_group_id:
+        type: string
+      project_sfid_list:
+        type: array
+        items:
+          type: string
+  project-github-organizations:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          $ref: '#/definitions/project-github-organization'
+  project-github-organization:
+    type: object
+    properties:
+      auto_enabled:
+        type: boolean
+        description: Flag to indicate if auto-enabled flag should be enabled. Organizations
+          with auto-enable turned on will automatically include any new repositories
+          to the EasyCLA configuration.
+        x-omitempty: false
+      branchProtectionEnabled:
+        type: boolean
+        description: Flag to indicate if this GitHub Organization is configured to
+          automatically setup branch protection on CLA enabled repositories.
+        x-omitempty: false
+      github_organization_name:
+        type: string
+        description: The GitHub Organization name
+        example: kubernetes
+        pattern: ^([\w\-\.]+){2,255}$
+        minLength: 2
+        maxLength: 255
+      connection_status:
+        type: string
+        enum:
+        - connected
+        - partial_connection
+        - connection_failure
+        - no_connection
+      repositories:
+        type: array
+        items:
+          $ref: '#/definitions/project-github-repository'
+  project-github-repository:
+    type: object
+    properties:
+      repository_id:
+        type: string
+        x-omitempty: false
+      repository_github_id:
+        type: integer
+      repository_name:
+        type: string
+        x-omitempty: false
+      enabled:
+        type: boolean
+        x-omitempty: false
+      connection_status:
+        type: string
+        enum:
+        - connected
+        - connection_failure
+  url-object:
+    type: object
+    properties:
+      url:
+        type: string
+        x-omitempty: false
+  error-response:
+    type: object
+    x-nullable: false
+    title: Error Response
+    description: Standard error format
+    properties:
+      Code:
+        description: The error code
+        example: '404'
+        type: string
+      Message:
+        description: The error message
+        example: unable to find project Acme, Inc.
+        type: string
+      x-request-id:
+        description: The unique request ID value - assigned/set by the API Gateway
+          or the API based on the login session
+        example: b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f
+        type: string
+  success-response:
+    type: object
+    x-nullable: false
+    title: Success Response
+    description: Standard success format
+    properties:
+      Code:
+        description: The success code
+        example: '202'
+        type: string
+      Message:
+        description: The success message
+        example: unable to find project Acme, Inc.
+        type: string
+      x-request-id:
+        description: The unique request ID value - assigned/set by the API Gateway
+          or the API based on the login session
+        example: b1e86e26-d8c8-4fd8-9f8d-5c723d5dac9f
+        type: string
