@@ -14,3 +14,11 @@ func TrimRemoveTrailingComma(input string) string {
 	s := strings.TrimSpace(input)
 	return strings.TrimSuffix(s, ",")
 }
+
+// GetString is helper function which helps with extracting the string value for string ptr
+func GetString(input *string) string {
+	if input == nil {
+		return ""
+	}
+	return *input
+}

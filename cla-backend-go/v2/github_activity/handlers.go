@@ -72,6 +72,8 @@ func Configure(api *operations.EasyclaAPI, service Service) {
 				processError = service.ProcessInstallationRepositoriesEvent(event)
 			case *github.RepositoryEvent:
 				processError = service.ProcessRepositoryEvent(event)
+			case *github.IssueCommentEvent:
+				processError = service.ProcessPullRequestComment(event)
 			default:
 				log.Warnf("unsupported event sent : %s", githubEvent)
 			}

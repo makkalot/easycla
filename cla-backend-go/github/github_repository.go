@@ -21,6 +21,95 @@ var (
 	ErrGithubRepositoryNotFound = errors.New("github repository not found")
 )
 
+type PullRequestCommitAuthor struct {
+	CommitSha   string
+	AuthorID    int64
+	AuthorName  string
+	AuthorEmail string
+}
+
+// GetPullRequestCommitAuthors extracts the pull authors from the given pull request
+func GetPullRequestCommitAuthors(ctx context.Context, installationID int64, githubRepo *github.Repository, pullRequest *github.PullRequest) ([]*PullRequestCommitAuthor, error) {
+	client, err := NewGithubAppClient(installationID)
+	if err != nil {
+		return nil, err
+	}
+
+	commits, _, err := client.PullRequests.ListCommits(ctx, githubRepo.Owner.GetLogin(), githubRepo.GetName(), int(*pullRequest.ID), nil)
+	if err != nil {
+		logging.Warnf("fetching commits for pull request : %d failed : %v", *pullRequest.ID, err)
+		return nil, err
+	}
+
+	var pullRequestCommitAuthors []*PullRequestCommitAuthor
+	for _, commit := range commits {
+		if commit.Commit.Author == nil || commit.Author == nil {
+			log.Warnf("pr : %d commit %s doesn't have any author skipping", *pullRequest.ID, commit.GetSHA())
+			continue
+		}
+
+		pullRequestCommitAuthor := &PullRequestCommitAuthor{
+			CommitSha: commit.GetSHA(),
+		}
+		if commit.Author != nil {
+			if commit.Author.GetLogin() != "" {
+				pullRequestCommitAuthor.AuthorName = commit.Author.GetLogin()
+			}
+
+			if commit.Author.GetID() != 0 {
+				pullRequestCommitAuthor.AuthorID = commit.Author.GetID()
+			}
+
+			if commit.Author.GetEmail() != "" {
+				pullRequestCommitAuthor.AuthorEmail = commit.Author.GetEmail()
+			}
+		}
+
+		if commit.Commit.Author != nil {
+			commitAuthor := commit.Commit.Author
+			if pullRequestCommitAuthor.AuthorName == "" {
+				if commitAuthor.GetName() != "" {
+					pullRequestCommitAuthor.AuthorName = commitAuthor.GetName()
+				} else if commitAuthor.GetLogin() != "" {
+					pullRequestCommitAuthor.AuthorName = commitAuthor.GetLogin()
+				}
+			}
+
+			if pullRequestCommitAuthor.AuthorEmail == "" && commitAuthor.GetEmail() != "" {
+				pullRequestCommitAuthor.AuthorEmail = commitAuthor.GetEmail()
+			}
+		}
+		pullRequestCommitAuthors = append(pullRequestCommitAuthors, pullRequestCommitAuthor)
+	}
+	return pullRequestCommitAuthors, nil
+}
+
+// GetPullRequest fetches the github pull request
+func GetPullRequest(ctx context.Context, installationID, githubRepoID, pullRequestID int64) (*github.PullRequest, error) {
+	repo, err := GetRepositoryByExternalID(ctx, installationID, githubRepoID)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := NewGithubAppClient(installationID)
+	if err != nil {
+		return nil, err
+	}
+
+	owner := repo.Owner.GetLogin()
+	if owner == "" {
+		return nil, fmt.Errorf("missing owner in repo response")
+	}
+
+	pullRequest, _, err := client.PullRequests.Get(ctx, *repo.Owner.Login, repo.GetName(), int(pullRequestID))
+	if err != nil {
+		log.Warnf("fetching pull request : %d for repo : %s failed : %v", pullRequestID, repo.GetName(), err)
+		return nil, err
+	}
+
+	return pullRequest, nil
+}
+
 // GetRepositoryByExternalID finds github repository by github repository id
 func GetRepositoryByExternalID(ctx context.Context, installationID, id int64) (*github.Repository, error) {
 	client, err := NewGithubAppClient(installationID)

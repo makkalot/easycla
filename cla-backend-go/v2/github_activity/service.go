@@ -8,6 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
+
+	githubutils "github.com/communitybridge/easycla/cla-backend-go/github"
+
+	"github.com/communitybridge/easycla/cla-backend-go/utils"
 
 	"github.com/communitybridge/easycla/cla-backend-go/gen/models"
 
@@ -25,10 +30,12 @@ import (
 type Service interface {
 	ProcessInstallationRepositoriesEvent(event *github.InstallationRepositoriesEvent) error
 	ProcessRepositoryEvent(*github.RepositoryEvent) error
+	ProcessPullRequestComment(event *github.IssueCommentEvent) error
 }
 
 type eventHandlerService struct {
 	githubRepo        repositories.Repository
+	githubOrgRepo     repositories.GithubOrgRepo
 	eventService      events.Service
 	autoEnableService dynamo_events.AutoEnableService
 }
@@ -60,6 +67,21 @@ func (s *eventHandlerService) ProcessRepositoryEvent(event *github.RepositoryEve
 
 	return nil
 
+}
+
+func (s *eventHandlerService) ProcessPullRequestComment(event *github.IssueCommentEvent) error {
+	log.Debugf("ProcessPullRequestComment called for action : %s", *event.Action)
+	if event.Action == nil {
+		return fmt.Errorf("no action found in event payload")
+	}
+	switch *event.Action {
+	case "created", "edited":
+		return s.handlePullRequestComment(event)
+	default:
+		log.Warnf("ProcessPullRequestComment no handler for action : %s", *event.Action)
+	}
+
+	return nil
 }
 
 func (s *eventHandlerService) handleRepositoryAddedAction(sender *github.User, repo *github.Repository) error {
@@ -168,6 +190,89 @@ func (s *eventHandlerService) ProcessInstallationRepositoriesEvent(event *github
 		}
 	default:
 		log.Warnf("ProcessInstallationRepositoriesEvent no handler for action : %s", *event.Action)
+	}
+
+	return nil
+}
+
+func (s *eventHandlerService) handlePullRequestComment(event *github.IssueCommentEvent) error {
+	if event.Comment == nil {
+		log.Warnf("comment object missing")
+		return nil
+	}
+	comment := utils.GetString(event.Comment.Body)
+	if comment == "" {
+		log.Warnf("empty comment body nothing to process")
+		return nil
+	}
+
+	if !strings.Contains(comment, "/easycla") {
+		log.Warnf("non recognized comment command, nothing to process : %s", comment)
+		return nil
+	}
+
+	if event.Installation == nil || event.Installation.GetID() == 0 {
+		log.Warnf("installation id missing can't proceed")
+		return nil
+	}
+	installationID := *event.Installation.ID
+
+	if event.Repo == nil || event.Repo.GetID() == 0 {
+		log.Warnf("missing github repo id can't proceed")
+		return nil
+	}
+	githubRepoID := event.Repo.GetID()
+
+	if event.Issue == nil || event.Issue.GetID() == 0 {
+		log.Warnf("missing pull request id ")
+		return nil
+	}
+	pullRequestID := event.Issue.GetID()
+
+	return s.updatePullRequest(installationID, githubRepoID, pullRequestID)
+}
+
+func (s *eventHandlerService) updatePullRequest(installationID int64, githubRepoID, pullRequestID int64) error {
+	ctx := context.Background()
+	pullRequest, err := githubutils.GetPullRequest(ctx, installationID, githubRepoID, pullRequestID)
+	if err != nil {
+		return err
+	}
+
+	githubRepo, err := githubutils.GetRepositoryByExternalID(ctx, installationID, githubRepoID)
+	if err != nil {
+		return err
+	}
+
+	commitAuthors, err := githubutils.GetPullRequestCommitAuthors(ctx, installationID, githubRepo, pullRequest)
+	if err != nil {
+		return fmt.Errorf("fetching commitAuthors failed for repo : %s in pull request : %d : %v", githubRepo.GetName(), pullRequest.GetID(), err)
+	}
+
+	if len(commitAuthors) == 0 {
+		return fmt.Errorf("no commitAuthors found for repo : %s in pull request : %d", githubRepo.GetName(), pullRequest.GetID())
+	}
+
+	repo, err := s.githubRepo.GetRepositoryByGithubID(ctx, strconv.Itoa(int(githubRepo.GetID())), true)
+	if err != nil {
+		log.Warnf("fetching github repo : %s from db failed : %v", githubRepoID, err)
+		return err
+	}
+
+	orgName := repo.RepositoryOrganizationName
+	log.Debugf("PR: %d, determined github organization is: %s", pullRequest.GetID(), orgName)
+
+	githubOrg, err := s.githubOrgRepo.GetGithubOrganization(ctx, orgName)
+	if err != nil {
+		return fmt.Errorf("fetching github org : %s failed : %w", orgName, err)
+	}
+
+	if githubOrg.OrganizationInstallationID != installationID {
+		return fmt.Errorf("installation id mismatch githubOrg has : %d, pullRequest got : %d", githubOrg.OrganizationInstallationID, installationID)
+	}
+
+	for _, commitAuthor := range commitAuthors {
+		log.Debugf("processing commit author : %s", commitAuthor.AuthorName)
 	}
 
 	return nil
