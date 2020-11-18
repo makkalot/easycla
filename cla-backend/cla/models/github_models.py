@@ -302,36 +302,31 @@ class GitHub(repository_service_interface.RepositoryService):
     def process_easycla_command_comment(self, data):
         """
         Processes easycla command comment if present
-        :param data:
+        :param data: github issue comment webhook event payload : https://docs.github.com/en/free-pro-team@latest/developers/webhooks-and-events/webhook-events-and-payloads#issue_comment
         :return:
         """
         comment_str = data.get("comment", {}).get("body", "")
         if not comment_str:
-            cla.log.warning("missing comment body, ignoring the message")
-            return
+            raise ValueError("missing comment body, ignoring the message")
 
-        if "/easycla" not in comment_str:
-            cla.log.warning("unsupported comment supplied, currently only /easycla is supported")
-            return
+        if "/easycla" not in comment_str.split():
+            raise ValueError("unsupported comment supplied, currently only /easycla command is supported")
 
         github_repository_id = data.get('repository', {}).get('id', None)
         if not github_repository_id:
-            cla.log.warning("missing github repository id in pull request comment")
-            return
+            raise ValueError("missing github repository id in pull request comment")
         cla.log.debug(f"comment trigger for github_repo : {github_repository_id}")
 
         # turns out pull request id and issue is the same thing
         pull_request_id = data.get("issue", {}).get("number", None)
         if not pull_request_id:
-            cla.log.warning("missing pull request id ")
-            return
+            raise ValueError("missing pull request id ")
         cla.log.debug(f"comment trigger for pull_request_id : {pull_request_id}")
 
         cla.log.debug("installation object : ", data.get('installation', {}))
         installation_id = data.get('installation', {}).get('id', None)
         if not installation_id:
-            cla.log.warning("missing installation id in pull request comment")
-            return
+            raise ValueError("missing installation id in pull request comment")
         cla.log.debug(f"comment trigger for installation_id : {installation_id}")
 
         self.update_change_request(installation_id, github_repository_id, pull_request_id)
