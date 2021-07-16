@@ -19,6 +19,10 @@ const (
 	APPLICATION_SECRET = "8dd14ace0eb0e4674b849b6fed4ce51bbcc456fc62d9149aff15353c1dda6327"
 )
 
+const (
+	hookURL = "https://4c1ba3f4f3c1.ngrok.io/gitlab/events"
+)
+
 type OauthSuccessResponse struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
@@ -43,7 +47,7 @@ func main() {
 		}
 
 		projectID := c.Query("project_id")
-		if projectID == ""{
+		if projectID == "" {
 			c.JSON(400, gin.H{
 				"message": "projectID is required parameter",
 			})
@@ -51,7 +55,7 @@ func main() {
 		}
 
 		lastCommitSha := c.Query("sha")
-		if lastCommitSha == ""{
+		if lastCommitSha == "" {
 			c.JSON(400, gin.H{
 				"message": "sha is required parameter",
 			})
@@ -99,6 +103,13 @@ func main() {
 		if !ok {
 			c.JSON(400, gin.H{
 				"message": "type cast failed",
+			})
+			return
+		}
+
+		if mergeEvent.ObjectAttributes.State != "opened"{
+			c.JSON(200, gin.H{
+				"message": "only interested in opened events",
 			})
 			return
 		}
@@ -173,13 +184,68 @@ func main() {
 		}
 
 		result := resp.Result().(*OauthSuccessResponse)
+		accessToken := result.AccessToken
 
-		c.JSON(200, gin.H{
+		err = registerWebHooksForUserProjects(accessToken)
+		if err != nil {
+			log.Error("register webhook ", err)
+		}
+
+		respData := gin.H{
 			"message": "OK",
 			"data":    result,
-		})
+		}
+
+		if err != nil {
+			respData["error"] = err
+		}
+
+		c.JSON(200, respData)
 	})
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+}
+
+func registerWebHooksForUserProjects(accessToken string) error {
+	gitlabClient, err := gitlab.NewOAuthClient(accessToken)
+	if err != nil {
+		return fmt.Errorf("creating client failed : %v", err)
+	}
+
+	user, _, err := gitlabClient.Users.CurrentUser()
+	if err != nil {
+		return fmt.Errorf("fetching current user failed : %v", err)
+	}
+
+	log.Infof("fetched current user : %s", user.Name)
+
+	projects, _, err := gitlabClient.Projects.ListUserProjects(user.ID, &gitlab.ListProjectsOptions{
+	})
+	if err != nil {
+		return fmt.Errorf("listing projects failed : %v", err)
+	}
+
+	log.Printf("we fetched : %d projects for the account", len(projects))
+
+	for _, p := range projects {
+		log.Println("**********************")
+		log.Println("Name : ", p.Name)
+		log.Println("ID: ", p.ID)
+		log.Infof("adding webhook to the project : %s (%d)", p.Name, p.ID)
+		if err := addCLAHookToProject(gitlabClient, p.ID); err != nil {
+			return fmt.Errorf("adding hook to the project : %s (%d) failed : %v", p.Name, p.ID, err)
+		}
+	}
+
+	return nil
+}
+
+func addCLAHookToProject(gitlabClient *gitlab.Client, projectID int) error {
+	_, _, err := gitlabClient.Projects.AddProjectHook(projectID, &gitlab.AddProjectHookOptions{
+		URL:                   gitlab.String(hookURL),
+		MergeRequestsEvents:   gitlab.Bool(true),
+		EnableSSLVerification: gitlab.Bool(false),
+	})
+	return err
 }
 
 func setCommitStatus(projectID interface{}, commitSha string, userEmail string, forceState string) error {
@@ -195,7 +261,7 @@ func setCommitStatus(projectID interface{}, commitSha string, userEmail string, 
 
 	setState := gitlab.Failed
 
-	if forceState == ""{
+	if forceState == "" {
 		if passingUsers[userEmail] {
 			setState = gitlab.Success
 		}
@@ -209,7 +275,7 @@ func setCommitStatus(projectID interface{}, commitSha string, userEmail string, 
 		Description: gitlab.String(getDescription(setState)),
 	}
 
-	if setState == gitlab.Failed{
+	if setState == gitlab.Failed {
 		options.TargetURL = gitlab.String(getTargetURL(projectID, commitSha, userEmail))
 	}
 
