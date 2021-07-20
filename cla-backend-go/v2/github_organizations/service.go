@@ -62,17 +62,6 @@ func NewService(repo v1GithubOrg.RepositoryInterface, ghRepository v1Repositorie
 	}
 }
 
-const (
-	// Connected status
-	Connected = "connected"
-	// PartialConnection status
-	PartialConnection = "partial_connection"
-	// ConnectionFailure status
-	ConnectionFailure = "connection_failure"
-	// NoConnection status
-	NoConnection = "no_connection"
-)
-
 func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string) (*models.ProjectGithubOrganizations, error) {
 	f := logrus.Fields{
 		"functionName":   "v2.github_organizations.service.GetGitHubOrganizations",
@@ -165,12 +154,12 @@ func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string)
 		orgmap[org.OrganizationName] = rorg
 		out.List = append(out.List, rorg)
 		if org.OrganizationInstallationID == 0 {
-			rorg.ConnectionStatus = NoConnection
+			rorg.ConnectionStatus = utils.NoConnection
 		} else {
 			if org.Repositories.Error != "" {
-				rorg.ConnectionStatus = ConnectionFailure
+				rorg.ConnectionStatus = utils.ConnectionFailure
 			} else {
-				rorg.ConnectionStatus = Connected
+				rorg.ConnectionStatus = utils.Connected
 			}
 		}
 	}
@@ -207,7 +196,7 @@ func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string)
 				log.WithFields(f).WithError(err).Warn("repository github id is not integer")
 			}
 			rorg.Repositories = append(rorg.Repositories, &models.ProjectGithubRepository{
-				ConnectionStatus:   Connected,
+				ConnectionStatus:   utils.Connected,
 				Enabled:            repo.Enabled,
 				RepositoryID:       repo.RepositoryID,
 				RepositoryName:     repo.RepositoryName,
@@ -222,7 +211,7 @@ func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string)
 			delete(connectedRepo, key)
 		} else {
 			rorg.Repositories = append(rorg.Repositories, &models.ProjectGithubRepository{
-				ConnectionStatus: ConnectionFailure,
+				ConnectionStatus: utils.ConnectionFailure,
 				Enabled:          repo.Enabled,
 				RepositoryID:     repo.RepositoryID,
 				RepositoryName:   repo.RepositoryName,
@@ -230,8 +219,8 @@ func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string)
 				ProjectID:        repo.ProjectSFID,
 				ParentProjectID:  repo.RepositorySfdcID,
 			})
-			if rorg.ConnectionStatus == Connected {
-				rorg.ConnectionStatus = PartialConnection
+			if rorg.ConnectionStatus == utils.Connected {
+				rorg.ConnectionStatus = utils.PartialConnection
 			}
 		}
 	}
@@ -243,7 +232,7 @@ func (s service) GetGithubOrganizations(ctx context.Context, projectSFID string)
 			continue
 		}
 		rorg.Repositories = append(rorg.Repositories, &models.ProjectGithubRepository{
-			ConnectionStatus:   Connected,
+			ConnectionStatus:   utils.Connected,
 			Enabled:            false,
 			RepositoryID:       "",
 			RepositoryName:     notEnabledRepo.repoInfo.RepositoryName,

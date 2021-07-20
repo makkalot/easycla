@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	log "github.com/communitybridge/easycla/cla-backend-go/logging"
-	"github.com/gin-gonic/gin"
-	"github.com/go-resty/resty/v2"
-	"github.com/xanzy/go-gitlab"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+
+	log "github.com/communitybridge/easycla/cla-backend-go/logging"
+	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
+	"github.com/xanzy/go-gitlab"
 )
 
 const (
@@ -107,7 +108,7 @@ func main() {
 			return
 		}
 
-		if mergeEvent.ObjectAttributes.State != "opened"{
+		if mergeEvent.ObjectAttributes.State != "opened" {
 			c.JSON(200, gin.H{
 				"message": "only interested in opened events",
 			})
@@ -218,8 +219,7 @@ func registerWebHooksForUserProjects(accessToken string) error {
 
 	log.Infof("fetched current user : %s", user.Name)
 
-	projects, _, err := gitlabClient.Projects.ListUserProjects(user.ID, &gitlab.ListProjectsOptions{
-	})
+	projects, _, err := gitlabClient.Projects.ListUserProjects(user.ID, &gitlab.ListProjectsOptions{})
 	if err != nil {
 		return fmt.Errorf("listing projects failed : %v", err)
 	}

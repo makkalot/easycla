@@ -30,7 +30,6 @@ const (
 	ProjectSFIDOrganizationNameIndex = "project-sfid-organization-name-index"
 )
 
-// errors
 var (
 	ErrOrganizationDoesNotExist = errors.New("github organization does not exist in cla")
 )
