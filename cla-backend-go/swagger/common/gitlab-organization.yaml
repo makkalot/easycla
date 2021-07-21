@@ -3,6 +3,9 @@
 
 type: object
 properties:
+  organizationID:
+    type: string
+    description: internal id of the gitlab organization
   dateCreated:
     type: string
     example: "2020-02-06T09:31:49.245630+0000"

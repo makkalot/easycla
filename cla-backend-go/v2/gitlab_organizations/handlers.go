@@ -8,6 +8,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/communitybridge/easycla/cla-backend-go/gen/v2/models"
+	"github.com/communitybridge/easycla/cla-backend-go/gen/v2/restapi/operations/gitlab_activity"
+	"github.com/communitybridge/easycla/cla-backend-go/gitlab"
+	"github.com/gofrs/uuid"
+
 	log "github.com/communitybridge/easycla/cla-backend-go/logging"
 	"github.com/sirupsen/logrus"
 
@@ -121,13 +126,80 @@ func Configure(api *operations.EasyclaAPI, service Service, eventService events.
 			// Log the event
 			eventService.LogEventWithContext(ctx, &events.LogEventArgs{
 				LfUsername:  authUser.UserName,
-				EventType:   events.GitHubOrganizationAdded,
+				EventType:   events.GitlabOrganizationAdded,
 				ProjectSFID: params.ProjectSFID,
-				EventData: &events.GitHubOrganizationAddedEventData{
-					GitHubOrganizationName: *params.Body.OrganizationName,
+				EventData: &events.GitlabOrganizationAddedEventData{
+					GitlabOrganizationName: *params.Body.OrganizationName,
 				},
 			})
 
 			return gitlab_organizations.NewAddProjectGitlabOrganizationOK().WithPayload(result)
 		})
+
+	api.GitlabActivityGitlabOauthCallbackHandler = gitlab_activity.GitlabOauthCallbackHandlerFunc(func(params gitlab_activity.GitlabOauthCallbackParams) middleware.Responder {
+		f := logrus.Fields{
+			"functionName": "gitlab_organization.handlers.GitlabActivityGitlabOauthCallbackHandler",
+			"code":         params.Code,
+			"state":        params.State,
+		}
+
+		requestID, _ := uuid.NewV4()
+		reqID := requestID.String()
+		if params.Code == "" {
+			msg := "missing code parameter"
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackBadRequest().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		if params.State == "" {
+			msg := "missing state parameter"
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackBadRequest().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		codeParts := strings.Split(params.Code, ":")
+		if len(codeParts) != 2 {
+			msg := "invalid state variable passed"
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackBadRequest().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		gitlabOrganizationID := codeParts[0]
+		stateVar := codeParts[1]
+
+		ctx := context.Background()
+		_, err := service.GetGitlabOrganizationByState(ctx, gitlabOrganizationID, stateVar)
+		if err != nil {
+			msg := fmt.Sprintf("fetching gitlab model failed : %s : %v", gitlabOrganizationID, err)
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackBadRequest().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		// now fetch the oauth credentials and store to db
+		oauthResp, err := gitlab.FetchOauthCredentials(params.Code)
+		if err != nil {
+			msg := fmt.Sprintf("fetching gitlab credentials failed : %s : %v", gitlabOrganizationID, err)
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackInternalServerError().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		err = service.UpdateGitlabOrganizationAuth(ctx, gitlabOrganizationID, oauthResp)
+		if err != nil {
+			msg := fmt.Sprintf("updating gitlab credentials failed : %s : %v", gitlabOrganizationID, err)
+			log.WithFields(f).Errorf(msg)
+			return gitlab_activity.NewGitlabOauthCallbackInternalServerError().WithPayload(
+				utils.ErrorResponseBadRequest(reqID, msg))
+		}
+
+		return gitlab_activity.NewGitlabOauthCallbackOK().WithPayload(&models.SuccessResponse{
+			Code:       "200",
+			Message:    "oauth credentials stored successfully",
+			XRequestID: reqID,
+		})
+	})
 }

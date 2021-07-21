@@ -9,6 +9,7 @@ import (
 
 // GitlabOrganization is data model for gitlab organizations
 type GitlabOrganization struct {
+	OrganizationID          string `json:"organization_id"`
 	DateCreated             string `json:"date_created,omitempty"`
 	DateModified            string `json:"date_modified,omitempty"`
 	OrganizationName        string `json:"organization_name,omitempty"`
@@ -20,12 +21,14 @@ type GitlabOrganization struct {
 	BranchProtectionEnabled bool   `json:"branch_protection_enabled"`
 	AutoEnabledClaGroupID   string `json:"auto_enabled_cla_group_id,omitempty"`
 	AuthInfo                string `json:"auth_info"`
+	AuthState               string `json:"auth_state"`
 	Version                 string `json:"version,omitempty"`
 }
 
 // ToModel converts to models.GitlabOrganization
 func ToModel(in *GitlabOrganization) *models2.GitlabOrganization {
 	return &models2.GitlabOrganization{
+		OrganizationID:        in.OrganizationID,
 		DateCreated:           in.DateCreated,
 		DateModified:          in.DateModified,
 		OrganizationName:      in.OrganizationName,

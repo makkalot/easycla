@@ -8,8 +8,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/xanzy/go-gitlab"
 	"io"
+
+	"github.com/xanzy/go-gitlab"
 )
 
 type OauthSuccessResponse struct {
@@ -74,7 +75,6 @@ func DecryptAuthInfo(authInfoEncoded string) (*OauthSuccessResponse, error) {
 
 	return &oauthResp, nil
 }
-
 
 func encrypt(key, message []byte) ([]byte, error) {
 	// Initialize block cipher

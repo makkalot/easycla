@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/communitybridge/easycla/cla-backend-go/gitlab"
 	"os"
 
 	"github.com/communitybridge/easycla/cla-backend-go/github_organizations"
@@ -91,6 +92,9 @@ func init() {
 
 	token.Init(configFile.Auth0Platform.ClientID, configFile.Auth0Platform.ClientSecret, configFile.Auth0Platform.URL, configFile.Auth0Platform.Audience)
 	github.Init(configFile.GitHub.AppID, configFile.GitHub.AppPrivateKey, configFile.GitHub.AccessToken)
+	// initialize gitlab
+	gitlab.Init(configFile.Gitlab.AppID, configFile.Gitlab.AppPrivateKey)
+
 
 	user_service.InitClient(configFile.APIGatewayURL, configFile.AcsAPIKey)
 	project_service.InitClient(configFile.APIGatewayURL)

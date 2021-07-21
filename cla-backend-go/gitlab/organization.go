@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"fmt"
+
 	"github.com/xanzy/go-gitlab"
 )
 

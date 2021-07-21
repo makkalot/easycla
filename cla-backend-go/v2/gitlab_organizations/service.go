@@ -2,21 +2,27 @@ package gitlab_organizations
 
 import (
 	"context"
+	"fmt"
+	"sort"
+	"strings"
+
 	v1Models "github.com/communitybridge/easycla/cla-backend-go/gen/v1/models"
 	"github.com/communitybridge/easycla/cla-backend-go/gen/v2/models"
+	"github.com/communitybridge/easycla/cla-backend-go/gitlab"
 	log "github.com/communitybridge/easycla/cla-backend-go/logging"
 	"github.com/communitybridge/easycla/cla-backend-go/projects_cla_groups"
 	"github.com/communitybridge/easycla/cla-backend-go/utils"
 	v2ProjectService "github.com/communitybridge/easycla/cla-backend-go/v2/project-service"
 	"github.com/sirupsen/logrus"
-	"sort"
-	"strings"
 )
 
 // Service contains functions of GitlabOrganizations service
 type Service interface {
 	GetGitlabOrganizations(ctx context.Context, projectSFID string) (*models.ProjectGitlabOrganizations, error)
 	AddGitlabOrganization(ctx context.Context, projectSFID string, input *models.CreateGitlabOrganization) (*models.GitlabOrganization, error)
+	GetGitlabOrganization(ctx context.Context, gitlabOrganizationID string) (*models.GitlabOrganization, error)
+	GetGitlabOrganizationByState(ctx context.Context, gitlabOrganizationID, authState string) (*models.GitlabOrganization, error)
+	UpdateGitlabOrganizationAuth(ctx context.Context, gitlabOrganizationID string, oauthResp *gitlab.OauthSuccessResponse) error
 }
 
 type service struct {
@@ -30,6 +36,60 @@ func NewService(repo RepositoryInterface, projectsCLAGroupService projects_cla_g
 		repo:                    repo,
 		projectsCLAGroupService: projectsCLAGroupService,
 	}
+}
+
+func (s service) GetGitlabOrganization(ctx context.Context, gitlabOrganizationID string) (*models.GitlabOrganization, error) {
+	f := logrus.Fields{
+		"functionName":         "v2.gitlab_organizations.service.GetGitlabOrganization",
+		utils.XREQUESTID:       ctx.Value(utils.XREQUESTID),
+		"gitlabOrganizationID": gitlabOrganizationID,
+	}
+
+	log.WithFields(f).Debugf("fetching gitlab organization for gitlab org id : %s", gitlabOrganizationID)
+	dbModel, err := s.repo.GetGitlabOrganization(ctx, gitlabOrganizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	return ToModel(dbModel), nil
+}
+
+func (s service) UpdateGitlabOrganizationAuth(ctx context.Context, gitlabOrganizationID string, oauthResp *gitlab.OauthSuccessResponse) error {
+	f := logrus.Fields{
+		"functionName":         "v2.gitlab_organizations.service.UpdateGitlabOrganizationAuth",
+		utils.XREQUESTID:       ctx.Value(utils.XREQUESTID),
+		"gitlabOrganizationID": gitlabOrganizationID,
+	}
+
+	log.WithFields(f).Debugf("updating gitlab org auth")
+	authInfoEncrypted, err := gitlab.EncryptAuthInfo(oauthResp)
+	if err != nil {
+		return fmt.Errorf("encrypt failed : %v", err)
+	}
+
+	return s.repo.UpdateGitlabOrganizationAuth(ctx, gitlabOrganizationID, authInfoEncrypted)
+
+}
+
+func (s service) GetGitlabOrganizationByState(ctx context.Context, gitlabOrganizationID, authState string) (*models.GitlabOrganization, error) {
+	f := logrus.Fields{
+		"functionName":         "v2.gitlab_organizations.service.GetGitlabOrganization",
+		utils.XREQUESTID:       ctx.Value(utils.XREQUESTID),
+		"gitlabOrganizationID": gitlabOrganizationID,
+		"authState":            authState,
+	}
+
+	log.WithFields(f).Debugf("fetching gitlab organization for gitlab org id : %s", gitlabOrganizationID)
+	dbModel, err := s.repo.GetGitlabOrganization(ctx, gitlabOrganizationID)
+	if err != nil {
+		return nil, err
+	}
+
+	if dbModel.AuthState != authState {
+		return nil, fmt.Errorf("auth state doesn't match")
+	}
+
+	return ToModel(dbModel), nil
 }
 
 func (s service) AddGitlabOrganization(ctx context.Context, projectSFID string, input *models.CreateGitlabOrganization) (*models.GitlabOrganization, error) {

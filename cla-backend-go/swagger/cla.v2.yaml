@@ -3740,6 +3740,43 @@ paths:
       tags:
         - github-activity
 
+  /gitlab/oauth/callback:
+    get:
+      summary: The endpoint is called after user authorizes EasyCLA bot
+      description: The endpoint is responsible for storing the access token for the user and registering the webhooks is autoenable is on
+      security: []
+      operationId: gitlabOauthCallback
+      parameters:
+        - name: code
+          description: oauth code used to fetch the access token
+          in: query
+          type: string
+          required: true
+        - name: state
+          description: state is used to find the gitlab organization
+          in: query
+          type: string
+          required: true
+      responses:
+        '200':
+          description: 'Success'
+          headers:
+            x-request-id:
+              type: string
+              description: The unique request ID value - assigned/set by the API Gateway based on the session
+          schema:
+            $ref: '#/definitions/success-response'
+        '400':
+          $ref: '#/responses/invalid-request'
+        '403':
+          $ref: '#/responses/forbidden'
+        '404':
+          $ref: '#/responses/not-found'
+        '500':
+          $ref: '#/responses/internal-server-error'
+      tags:
+        - gitlab-activity
+
 responses:
   unauthorized:
     description: Unauthorized

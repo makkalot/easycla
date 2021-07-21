@@ -10,4 +10,3 @@ const (
 	// NoConnection status
 	NoConnection = "no_connection"
 )
-

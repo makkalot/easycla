@@ -2,8 +2,9 @@ package gitlab
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var key = "0WqnDWHnZKo2cmQ8m93EtY9ZBpfzQW4UnnEuRmgtJKM="
@@ -54,4 +55,3 @@ func TestEncryptDecryptAuthInfo(t *testing.T) {
 
 	assert.Equal(t, &oauthResp, oauthRespDecrypted)
 }
-

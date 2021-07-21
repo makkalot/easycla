@@ -6,6 +6,7 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
+	"github.com/communitybridge/easycla/cla-backend-go/gitlab"
 	"io"
 	"net/http"
 	"net/url"
@@ -226,7 +227,10 @@ func server(localMode bool) http.Handler {
 	if err != nil {
 		logrus.Panic(err)
 	}
+	// initialize github
 	github.Init(configFile.GitHub.AppID, configFile.GitHub.AppPrivateKey, configFile.GitHub.AccessToken)
+	// initialize gitlab
+	gitlab.Init(configFile.Gitlab.AppID, configFile.Gitlab.AppPrivateKey)
 
 	// Our backend repository handlers
 	userRepo := user.NewDynamoRepository(awsSession, stage)

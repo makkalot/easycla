@@ -2,7 +2,10 @@ package gitlab_organizations
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -14,23 +17,22 @@ import (
 	log "github.com/communitybridge/easycla/cla-backend-go/logging"
 	"github.com/communitybridge/easycla/cla-backend-go/utils"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 // indexes
 const (
-	GitlabOrgSFIDIndex               = "gitlab-org-sfid-index"
-	GitlabOrgLowerNameIndex          = "gitlab-organization-name-lower-search-index"
+	GitlabOrgSFIDIndex                     = "gitlab-org-sfid-index"
+	GitlabOrgLowerNameIndex                = "gitlab-organization-name-lower-search-index"
 	GitlabProjectSFIDOrganizationNameIndex = "gitlab-project-sfid-organization-name-index"
 )
-
 
 // RepositoryInterface is interface for gitlab org data model
 type RepositoryInterface interface {
 	AddGitlabOrganization(ctx context.Context, parentProjectSFID string, projectSFID string, input *models2.CreateGitlabOrganization) (*models2.GitlabOrganization, error)
 	GetGitlabOrganizations(ctx context.Context, projectSFID string) (*models2.GitlabOrganizations, error)
+	GetGitlabOrganization(ctx context.Context, gitlabOrganizationID string) (*GitlabOrganization, error)
+	UpdateGitlabOrganizationAuth(ctx context.Context, gitlabOrganizationID, authInfo string) error
 }
-
 
 // Repository object/struct
 type Repository struct {
@@ -47,7 +49,6 @@ func NewRepository(awsSession *session.Session, stage string) Repository {
 		gitlabOrgTableName: fmt.Sprintf("cla-%s-gitlab-orgs", stage),
 	}
 }
-
 
 func (repo Repository) AddGitlabOrganization(ctx context.Context, parentProjectSFID string, projectSFID string, input *models.CreateGithubOrganization) (*models2.GitlabOrganization, error) {
 	f := logrus.Fields{
@@ -83,17 +84,17 @@ func (repo Repository) AddGitlabOrganization(ctx context.Context, parentProjectS
 	_, currentTime := utils.CurrentTime()
 	enabled := true
 	githubOrg := &GitlabOrganization{
-		DateCreated:                currentTime,
-		DateModified:               currentTime,
-		OrganizationName:           *input.OrganizationName,
-		OrganizationNameLower:      strings.ToLower(*input.OrganizationName),
-		OrganizationSFID:           parentProjectSFID,
-		ProjectSFID:                projectSFID,
-		Enabled:                    aws.BoolValue(&enabled),
-		AutoEnabled:                aws.BoolValue(input.AutoEnabled),
-		AutoEnabledClaGroupID:      input.AutoEnabledClaGroupID,
-		BranchProtectionEnabled:    aws.BoolValue(input.BranchProtectionEnabled),
-		Version:                    "v1",
+		DateCreated:             currentTime,
+		DateModified:            currentTime,
+		OrganizationName:        *input.OrganizationName,
+		OrganizationNameLower:   strings.ToLower(*input.OrganizationName),
+		OrganizationSFID:        parentProjectSFID,
+		ProjectSFID:             projectSFID,
+		Enabled:                 aws.BoolValue(&enabled),
+		AutoEnabled:             aws.BoolValue(input.AutoEnabled),
+		AutoEnabledClaGroupID:   input.AutoEnabledClaGroupID,
+		BranchProtectionEnabled: aws.BoolValue(input.BranchProtectionEnabled),
+		Version:                 "v1",
 	}
 
 	log.WithFields(f).Debug("Encoding github organization record for adding to the database...")
@@ -123,7 +124,6 @@ func (repo Repository) AddGitlabOrganization(ctx context.Context, parentProjectS
 
 	return ToModel(githubOrg), nil
 }
-
 
 // GetGitlabOrganizations get github organizations based on the project SFID
 func (repo Repository) GetGitlabOrganizations(ctx context.Context, projectSFID string) (*models2.GitlabOrganizations, error) {
@@ -181,7 +181,6 @@ func (repo Repository) GetGitlabOrganizations(ctx context.Context, projectSFID s
 	return &models2.GitlabOrganizations{List: gitlabOrgList}, nil
 }
 
-
 // GetGitlabOrganizationByName get github organization by name
 func (repo Repository) GetGitlabOrganizationByName(ctx context.Context, githubOrganizationName string) (*models2.GitlabOrganizations, error) {
 	f := logrus.Fields{
@@ -231,6 +230,96 @@ func (repo Repository) GetGitlabOrganizationByName(ctx context.Context, githubOr
 	return &models2.GitlabOrganizations{List: ghOrgList}, nil
 }
 
+// GetGitlabOrganization by organization name
+func (repo Repository) GetGitlabOrganization(ctx context.Context, gitlabOrganizationID string) (*GitlabOrganization, error) {
+	f := logrus.Fields{
+		"functionName":         "gitlab_organizations.repository.GetGitlabOrganization",
+		utils.XREQUESTID:       ctx.Value(utils.XREQUESTID),
+		"gitlabOrganizationID": gitlabOrganizationID,
+	}
+
+	log.WithFields(f).Debug("Querying for github organization by name...")
+	result, err := repo.dynamoDBClient.GetItem(&dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"organization_id": {
+				S: aws.String(gitlabOrganizationID),
+			},
+		},
+		TableName: aws.String(repo.gitlabOrgTableName),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(result.Item) == 0 {
+		log.WithFields(f).Debug("Unable to find github organization by name - no results")
+		return nil, nil
+	}
+
+	var org GitlabOrganization
+	err = dynamodbattribute.UnmarshalMap(result.Item, &org)
+	if err != nil {
+		log.WithFields(f).Warnf("error unmarshalling organization table data, error: %v", err)
+		return nil, err
+	}
+	return &org, nil
+}
+
+// UpdateGitlabOrganizationAuth updates the specified Gitlab organization oauth info
+func (repo Repository) UpdateGitlabOrganizationAuth(ctx context.Context, gitlabOrganizationID, authInfo string) error {
+	f := logrus.Fields{
+		"functionName":         "gitlab_organizations.repository.UpdateGitlabOrganizationAuth",
+		utils.XREQUESTID:       ctx.Value(utils.XREQUESTID),
+		"gitlabOrganizationID": gitlabOrganizationID,
+		"tableName":            repo.gitlabOrgTableName,
+	}
+
+	_, currentTime := utils.CurrentTime()
+	gitlabOrg, lookupErr := repo.GetGitlabOrganization(ctx, gitlabOrganizationID)
+	if lookupErr != nil {
+		log.WithFields(f).Warnf("error looking up Gitlab organization by id, error: %+v", lookupErr)
+		return lookupErr
+	}
+	if gitlabOrg == nil {
+		lookupErr := errors.New("unable to lookup Gitlab organization by id")
+		log.WithFields(f).Warnf("error looking up Gitlab organization, error: %+v", lookupErr)
+		return lookupErr
+	}
+
+	expressionAttributeNames := map[string]*string{
+		"#A": aws.String("auth_info"),
+		"#M": aws.String("date_modified"),
+	}
+	expressionAttributeValues := map[string]*dynamodb.AttributeValue{
+		":a": {
+			S: aws.String(authInfo),
+		},
+		":m": {
+			S: aws.String(currentTime),
+		},
+	}
+	updateExpression := "SET #A = :a, #M = :m,"
+
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"organization_id": {
+				S: aws.String(gitlabOrg.OrganizationID),
+			},
+		},
+		ExpressionAttributeNames:  expressionAttributeNames,
+		ExpressionAttributeValues: expressionAttributeValues,
+		UpdateExpression:          &updateExpression,
+		TableName:                 aws.String(repo.gitlabOrgTableName),
+	}
+
+	log.WithFields(f).Debug("updating gitlab organization record...")
+	_, updateErr := repo.dynamoDBClient.UpdateItem(input)
+	if updateErr != nil {
+		log.WithFields(f).Warnf("unable to update Gitlab organization record, error: %+v", updateErr)
+		return updateErr
+	}
+
+	return nil
+}
 
 func buildGitlabOrganizationListModels(ctx context.Context, gitlabOrganizations []*GitlabOrganization) []*models2.GitlabOrganization {
 	f := logrus.Fields{
